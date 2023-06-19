@@ -228,6 +228,7 @@
 // }
 //**************************************
 // */
+import 'package:cmms/pages/machinlist.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -371,6 +372,13 @@ class _AssetDetailViewState extends State<AssetDetailView2> {
               InkWell(
                 onTap: () {
                   // Perform action on field click
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MachinList(
+                              assetId: assetData!['id'],
+                            )),
+                  );
                 },
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,12 +408,7 @@ class _AssetDetailViewState extends State<AssetDetailView2> {
                       style: TextStyle(
                           fontWeight: FontWeight.bold, fontFamily: 'Vazir'),
                     ),
-                    Text(
-                      assetData!['assetIsLocatedAt'] ?? 'ندارد',
-                      style: TextStyle(
-                        fontFamily: 'Vazir',
-                      ),
-                    ),
+                    asstelocation(assetData: assetData),
                     SizedBox(height: 16.0),
                   ],
                 ),
@@ -424,8 +427,7 @@ class _AssetDetailViewState extends State<AssetDetailView2> {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      assetData!['assetCategory']['name'].toString() ??
-                          'نامشخص',
+                      assetData!['assetCategory']['name'] ?? 'نامشخص',
                       style: TextStyle(
                         fontFamily: 'Vazir',
                       ),
@@ -507,5 +509,32 @@ class _AssetDetailViewState extends State<AssetDetailView2> {
         ),
       );
     }
+  }
+}
+
+class asstelocation extends StatelessWidget {
+  const asstelocation({
+    Key? key,
+    required this.assetData,
+  }) : super(key: key);
+
+  final Map<String, dynamic>? assetData;
+
+  @override
+  Widget build(BuildContext context) {
+    if (assetData!['assetIsLocatedAt'] != null) {
+      return Text(
+        assetData!['assetIsLocatedAt']['assetName'] ?? 'ندارد',
+        style: TextStyle(
+          fontFamily: 'Vazir',
+        ),
+      );
+    }
+    return Text(
+      assetData!['assetIsLocatedAt'] ?? 'ندارد',
+      style: TextStyle(
+        fontFamily: 'Vazir',
+      ),
+    );
   }
 }

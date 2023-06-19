@@ -31,9 +31,10 @@ class _LocationListState extends State<LocationList> {
 
       for (var locationData in data) {
         final location = Location(
-          name: locationData['assetName'],
-          id: locationData['id'],
-        );
+            name: locationData['assetName'],
+            id: locationData['id'],
+            category: locationData['assetCategory']['name']);
+
         fetchedLocations.add(location);
       }
 
@@ -91,7 +92,7 @@ class _LocationListState extends State<LocationList> {
                     ),
                   ),
                   subtitle: Text(
-                    filteredLocations[index].id.toString(),
+                    filteredLocations[index].category.toString(),
                     style: TextStyle(
                       fontFamily: 'Vazir',
                       fontSize: 16.0,
@@ -151,7 +152,8 @@ class PlaceholderWidget extends StatelessWidget {
 // Location model class
 class Location {
   final String name;
+  final String category;
   final int id;
 
-  Location({required this.name, required this.id});
+  Location({required this.name, required this.id, required this.category});
 }

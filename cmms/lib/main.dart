@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: LocationListView(),
+      home: BottomNavigation(),
     );
   }
 }
@@ -242,3 +242,153 @@ class _LocationListViewState extends State<LocationListView> {
 //   Location(name: 'Location 3', description: 'Description 3'),
 //   // Add more locations as needed
 // ];
+class BottomNavigation extends StatefulWidget {
+  @override
+  _BottomNavigationState createState() => _BottomNavigationState();
+}
+
+class _BottomNavigationState extends State<BottomNavigation> {
+  int _selectedIndex = 0;
+  late PageController _pageController;
+
+  static const List<IconData> _icons = [
+    Icons.work_outline,
+    Icons.location_on_outlined,
+    Icons.qr_code_outlined,
+    Icons.settings_outlined,
+  ];
+
+  static const List<IconData> _filledIcons = [
+    Icons.work,
+    Icons.location_on,
+    Icons.qr_code,
+    Icons.settings,
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      _pageController.jumpToPage(index);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'ریسندگی خاطره',
+          style: TextStyle(fontFamily: 'Vazir'),
+        ),
+      ),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        children: [
+          WorkOrderListScreen(),
+          LocationList(),
+          LoginPage(),
+          PlaceholderWidget(),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        backgroundColor: Colors.white,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        items: _icons
+            .asMap()
+            .map(
+              (index, icon) => MapEntry(
+                index,
+                BottomNavigationBarItem(
+                  icon: Icon(icon),
+                  label: '',
+                  activeIcon: Icon(_filledIcons[index]),
+                ),
+              ),
+            )
+            .values
+            .toList(),
+      ),
+    );
+  }
+}
+
+class WorkOrderPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.blue,
+      child: Center(
+        child: Text(
+          'Work Order Page',
+          style: TextStyle(fontSize: 24, color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
+
+class LocationPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.green,
+      child: Center(
+        child: Text(
+          'Location Page',
+          style: TextStyle(fontSize: 24, color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
+
+class ScanPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.orange,
+      child: Center(
+        child: Text(
+          'Scan Page',
+          style: TextStyle(fontSize: 24, color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.purple,
+      child: Center(
+        child: Text(
+          'Settings Page',
+          style: TextStyle(fontSize: 24, color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
