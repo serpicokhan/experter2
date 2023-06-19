@@ -13,6 +13,8 @@ class MachinList extends StatefulWidget {
 class _MachinListState extends State<MachinList> {
   List<MachinClass> Machins = [];
   List<MachinClass> filteredMachins = [];
+  List<String> categories = []; // Added categories list
+  List<String> selectedCategories = []; // Added selectedCategories list
 
   @override
   void initState() {
@@ -27,8 +29,8 @@ class _MachinListState extends State<MachinList> {
     if (response.statusCode == 200) {
       String source = const Utf8Decoder().convert(response.bodyBytes);
       final data = jsonDecode(source);
-      // final data = json.decode(response.body);
       final List<MachinClass> fetchedMachins = [];
+      final List<String> fetchedCategories = [];
 
       for (var MachinData in data) {
         final machinClass = MachinClass(
@@ -37,15 +39,18 @@ class _MachinListState extends State<MachinList> {
           category: MachinData['assetCategory']['name'],
         );
         fetchedMachins.add(machinClass);
+
+        if (!fetchedCategories.contains(MachinData['assetCategory']['name'])) {
+          fetchedCategories.add(MachinData['assetCategory']['name']);
+        }
       }
 
       setState(() {
         Machins = fetchedMachins;
-        filteredMachins =
-            fetchedMachins; // Initialize filteredMachins with all Machins initially
+        filteredMachins = fetchedMachins;
+        categories = fetchedCategories;
       });
     } else {
-      // Handle API error
       print('Error fetching Machins: ${response.statusCode}');
     }
   }
@@ -57,10 +62,23 @@ class _MachinListState extends State<MachinList> {
     });
   }
 
+  void toggleCategory(String category) {
+    setState(() {
+      if (selectedCategories.contains(category)) {
+        selectedCategories.remove(category);
+      } else {
+        selectedCategories.add(category);
+      }
+
+      filteredMachins = Machins.where(
+          (Machin) => selectedCategories.contains(Machin.category)).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (Machins.isEmpty) {
-      return CircularProgressIndicator(); // Show loading indicator while fetching data
+      return CircularProgressIndicator();
     }
 
     return Scaffold(
@@ -72,6 +90,23 @@ class _MachinListState extends State<MachinList> {
       ),
       body: Column(
         children: [
+          Wrap(
+            spacing: 8.0,
+            children: categories.map((category) {
+              final isSelected = selectedCategories.contains(category);
+              return FilterChip(
+                label: Text(category),
+                selected: isSelected,
+                onSelected: (isSelected) {
+                  toggleCategory(category);
+                },
+                selectedColor: Colors.blue,
+                labelStyle: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black,
+                ),
+              );
+            }).toList(),
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: filteredMachins.length,
@@ -88,7 +123,7 @@ class _MachinListState extends State<MachinList> {
                       ),
                     ),
                     subtitle: Text(
-                      filteredMachins[index].category.toString(),
+                      filteredMachins[index].category,
                       style: TextStyle(
                         fontFamily: 'Vazir',
                         fontSize: 16.0,
@@ -106,7 +141,7 @@ class _MachinListState extends State<MachinList> {
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                           child: Text(
-                            '5', // Replace with your batch counter value
+                            '5',
                             style: TextStyle(
                               color: Colors.white,
                               fontFamily: 'Vazir',
@@ -117,13 +152,13 @@ class _MachinListState extends State<MachinList> {
                       ],
                     ),
                     onTap: () {
-                      // Handle location item tap
-                      // You can navigate to asset list or perform any desired action here
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => AssetDetailsView(
-                                assetId: filteredMachins[index].id)),
+                          builder: (context) => AssetDetailsView(
+                            assetId: filteredMachins[index].id,
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -146,7 +181,6 @@ class PlaceholderWidget extends StatelessWidget {
   }
 }
 
-// Machin model class
 class MachinClass {
   final String name;
   final String category;

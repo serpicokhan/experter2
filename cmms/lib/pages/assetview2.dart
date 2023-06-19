@@ -228,6 +228,7 @@
 // }
 //**************************************
 // */
+import 'package:cmms/pages/assetcategory.dart';
 import 'package:cmms/pages/machinlist.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -372,12 +373,16 @@ class _AssetDetailViewState extends State<AssetDetailView2> {
               InkWell(
                 onTap: () {
                   // Perform action on field click
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //       builder: (context) => MachinList(
+                  //             assetId: assetData!['id'],
+                  //           )),
+                  // );
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => MachinList(
-                              assetId: assetData!['id'],
-                            )),
+                    MaterialPageRoute(builder: (context) => CategoryPage()),
                   );
                 },
                 child: Column(
