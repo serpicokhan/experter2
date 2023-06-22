@@ -383,7 +383,8 @@ class _AssetDetailViewState extends State<AssetDetailView2> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => MachineCategoryPage()),
+                        builder: (context) =>
+                            MachineCategoryPage(assetId: widget.assetId)),
                   );
                 },
                 child: Column(

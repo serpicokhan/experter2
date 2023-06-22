@@ -5,7 +5,8 @@ import 'package:http/http.dart' as http;
 
 class MachinList extends StatefulWidget {
   late final int assetId;
-  MachinList({required this.assetId});
+  late final int catId;
+  MachinList({required this.assetId, required this.catId});
   @override
   _MachinListState createState() => _MachinListState();
 }
@@ -23,7 +24,8 @@ class _MachinListState extends State<MachinList> {
   }
 
   Future<void> fetchMachins() async {
-    final url = 'http://192.168.2.60:8000/api/v1/${widget.assetId}/Machines/';
+    final url =
+        'http://192.168.2.60:8000/api/v1/${widget.assetId}/${widget.catId}/Machines/';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
