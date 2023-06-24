@@ -1,26 +1,10 @@
+import 'package:cmms/model/workorder.dart';
+import 'package:cmms/pages/workorderform.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:intl/intl.dart';
-
-class WorkOrder {
-  final String problem;
-  final String asset;
-  final DateTime dueDate;
-  final String maintenanceType;
-  final String status;
-  final String priority;
-
-  WorkOrder({
-    required this.problem,
-    required this.asset,
-    required this.dueDate,
-    required this.maintenanceType,
-    required this.status,
-    required this.priority,
-  });
-}
 
 class WorkOrderListScreen extends StatefulWidget {
   @override
@@ -56,11 +40,12 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
 
       for (var item in data) {
         WorkOrder workOrder = WorkOrder(
+          id: item['id'],
           problem: item['summaryofIssue'],
           asset: item['woAsset']["assetName"],
           dueDate: DateTime.parse(item['datecreated']),
           maintenanceType: item['maintenanceType']["name"],
-          status: item['status'].toString(),
+          status: item['woStatus'].toString(),
           priority: '1',
         );
 
@@ -103,6 +88,35 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
         }
       }).toList();
     });
+  }
+
+  void _handleDismiss(WorkOrder workOrder) {
+    setState(() {
+      _filteredWorkOrders.remove(workOrder);
+    });
+
+    _makeApiCall(workOrder);
+  }
+
+  Future<void> _makeApiCall(WorkOrder workOrder) async {
+    // Your API call code goes here
+    // Replace the URL with your actual API endpoint
+    final response = await http.post(
+      Uri.parse('http://192.168.2.60:8000/api/v1/WO/Complete/'),
+      body: {
+        'id': workOrder.id.toString(),
+        // 'asset': workOrder.asset,
+        // Add more parameters as needed
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // API call was successful
+      print('API call successful');
+    } else {
+      // API call failed
+      print('API call failed');
+    }
   }
 
   @override
@@ -231,44 +245,89 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
               itemCount: _filteredWorkOrders.length,
               itemBuilder: (context, index) {
                 var workOrder = _filteredWorkOrders[index];
-//                 return ListTile(
-//                   title: Text(workOrder.problem),
-//                   subtitle: Text(workOrder.asset),
-//                   trailing: Text(workOrder.dueDate.toString()),
-// // Add more fields as needed
-//                 );
-                return Card(
-                  margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: ListTile(
-                    title: Text(
-                      workOrder.problem,
-                      style: TextStyle(
-                        fontFamily: 'Vazir',
-                        fontSize: 12.0, overflow: TextOverflow.ellipsis,
-                        fontWeight: FontWeight.bold,
+                IconData statusIcon;
 
-                        // Add more text styles as needed
+                // Set the icon based on the status
+                if (workOrder.status == '1') {
+                  statusIcon = Icons.warning;
+                } else if (workOrder.status == '2') {
+                  statusIcon = Icons.pending;
+                } else if (workOrder.status == '7') {
+                  statusIcon = Icons.check;
+                } else {
+                  // If status is unknown, you can set a default icon or handle it accordingly
+                  statusIcon = Icons.error;
+                }
+
+                return Dismissible(
+                    key: Key(workOrder.problem),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      color: Colors.green,
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.only(right: 16.0),
+                      child: Icon(
+                        Icons.archive,
+                        color: Colors.white,
                       ),
                     ),
-                    subtitle: Text(
-                      workOrder.asset,
-                      style: TextStyle(
-                        fontFamily: 'Vazir',
+                    onDismissed: (direction) => _handleDismiss(workOrder),
+                    child: Card(
+                      margin:
+                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: ListTile(
+                        title: Text(
+                          workOrder.problem,
+                          style: TextStyle(
+                            fontFamily: 'Vazir',
+                            fontSize: 12.0, overflow: TextOverflow.ellipsis,
+                            fontWeight: FontWeight.bold,
 
-                        // Add more text styles as needed
-                      ),
-                    ),
-                    trailing: Text(
-                      DateFormat('yyyy-MM-dd').format(workOrder.dueDate),
-                    ),
+                            // Add more text styles as needed
+                          ),
+                        ),
+                        subtitle: Text(
+                          workOrder.asset,
+                          style: TextStyle(
+                            fontFamily: 'Vazir',
+
+                            // Add more text styles as needed
+                          ),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              DateFormat('yyyy-MM-dd')
+                                  .format(workOrder.dueDate),
+                            ),
+                            SizedBox(width: 8.0),
+                            Icon(
+                              statusIcon,
+                              color: Colors.blue, // Set the desired icon color
+                            ),
+                          ],
+                        ),
 // Add more fields as needed
-                  ),
-                );
+                      ),
+                    ));
               },
             ),
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WorkOrderFormPage(),
+            ),
+          );
+        },
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
