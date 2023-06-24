@@ -127,7 +127,9 @@ class _LocationListState extends State<LocationList> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => AssetDetailsView(
-                              assetId: filteredLocations[index].id)),
+                                assetId: filteredLocations[index].id,
+                                assetName: filteredLocations[index].name,
+                              )),
                     );
                   },
                 ),

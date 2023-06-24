@@ -84,12 +84,6 @@ class _MachinListState extends State<MachinList> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'ماشین آلات',
-          style: TextStyle(fontFamily: 'Vazir'),
-        ),
-      ),
       body: Column(
         children: [
           Wrap(
@@ -159,6 +153,7 @@ class _MachinListState extends State<MachinList> {
                         MaterialPageRoute(
                           builder: (context) => AssetDetailsView(
                             assetId: filteredMachins[index].id,
+                            assetName: filteredMachins[index].name,
                           ),
                         ),
                       );

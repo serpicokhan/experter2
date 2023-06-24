@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:cmms/pages/assetcategory.dart';
+import 'package:cmms/pages/assetstopbarchart.dart';
 import 'package:cmms/pages/machinechartdata.dart';
 import 'package:cmms/pages/machinlist.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +11,10 @@ import 'package:http/http.dart' as http;
 class CategoryTabbedPage extends StatelessWidget {
   late final int assetId;
   late final int catId;
-  CategoryTabbedPage({required this.assetId, required this.catId});
+  late final String assetName;
+  // MachineCategoryPage x;
+  CategoryTabbedPage(
+      {required this.assetId, required this.catId, required this.assetName});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,12 +22,30 @@ class CategoryTabbedPage extends StatelessWidget {
         length: 3,
         child: Scaffold(
           appBar: AppBar(
-            title: Text('My Tabs'),
+            title: Text(
+              this.assetName,
+              style: TextStyle(fontFamily: 'Vazir'),
+            ),
             bottom: TabBar(
               tabs: [
-                Tab(text: 'Assets'),
-                Tab(text: 'Productions'),
-                Tab(text: 'Broken Parts'),
+                Tab(
+                  child: Text(
+                    'تجهیزات',
+                    style: TextStyle(fontFamily: 'Vazir'),
+                  ),
+                ),
+                Tab(
+                  child: Text(
+                    'تولید',
+                    style: TextStyle(fontFamily: 'Vazir'),
+                  ),
+                ),
+                Tab(
+                  child: Text(
+                    'توقفات',
+                    style: TextStyle(fontFamily: 'Vazir'),
+                  ),
+                ),
               ],
             ),
           ),
@@ -32,7 +55,9 @@ class CategoryTabbedPage extends StatelessWidget {
               ProductionsTab(
                 assetId: this.assetId,
               ),
-              BrokenPartsTab(),
+              BarChartPage(
+                assetId: this.assetId,
+              ),
             ],
           ),
         ),
@@ -64,7 +89,7 @@ Future<Map<DateTime, double>> fetchDataFromAPI(int loc) async {
   if (response.statusCode == 200) {
     final jsonData = json.decode(response.body);
     Map<DateTime, double> data = {};
-    for (var entry in jsonData['data']) {
+    for (var entry in jsonData) {
       DateTime date = DateFormat("yyyy-MM-dd").parse(entry['date']);
       double value = double.parse(entry['value']);
       data[date] = value;

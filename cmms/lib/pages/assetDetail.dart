@@ -8,7 +8,8 @@ import 'linechart.dart';
 
 class AssetDetailsView extends StatefulWidget {
   late final int assetId;
-  AssetDetailsView({required this.assetId});
+  late final String assetName;
+  AssetDetailsView({required this.assetId, required this.assetName});
   @override
   _AssetDetailsViewState createState() => _AssetDetailsViewState();
 }
@@ -105,8 +106,9 @@ class _AssetDetailsViewState extends State<AssetDetailsView>
       body: TabBarView(
         controller: _tabController,
         children: [
-          AssetDetailView2(assetId: widget.assetId),
-          PartsList(),
+          AssetDetailView2(
+              assetId: widget.assetId, assetName: widget.assetName),
+          PartsList(assetId: widget.assetId),
           WorkOrderList(),
           LineChartExample(),
           FilesView(),

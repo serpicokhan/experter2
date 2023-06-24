@@ -132,7 +132,8 @@ class MachineCategory {
 
 class MachineCategoryPage extends StatefulWidget {
   late final int assetId;
-  MachineCategoryPage({required this.assetId});
+  late final String assetName;
+  MachineCategoryPage({required this.assetId, required this.assetName});
   @override
   _MachineCategoryPageState createState() => _MachineCategoryPageState();
 }
@@ -179,7 +180,10 @@ class _MachineCategoryPageState extends State<MachineCategoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Machine Categories'),
+        title: Text(
+          widget.assetName,
+          style: TextStyle(fontFamily: 'Vazir'),
+        ),
       ),
       body: categories.isEmpty
           ? Center(child: CircularProgressIndicator())
@@ -196,6 +200,7 @@ class _MachineCategoryPageState extends State<MachineCategoryPage> {
                           builder: (context) => CategoryTabbedPage(
                                 assetId: widget.assetId,
                                 catId: categories[index].id,
+                                assetName: widget.assetName,
                               )),
                     );
                   },

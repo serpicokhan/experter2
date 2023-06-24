@@ -236,7 +236,8 @@ import 'package:http/http.dart' as http;
 
 class AssetDetailView2 extends StatefulWidget {
   late final int assetId;
-  AssetDetailView2({required this.assetId});
+  late final String assetName;
+  AssetDetailView2({required this.assetId, required this.assetName});
   @override
   _AssetDetailViewState createState() => _AssetDetailViewState();
 }
@@ -383,8 +384,10 @@ class _AssetDetailViewState extends State<AssetDetailView2> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            MachineCategoryPage(assetId: widget.assetId)),
+                        builder: (context) => MachineCategoryPage(
+                              assetId: widget.assetId,
+                              assetName: assetData!['assetName'],
+                            )),
                   );
                 },
                 child: Column(
