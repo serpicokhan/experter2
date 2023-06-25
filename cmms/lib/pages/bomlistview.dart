@@ -65,6 +65,7 @@
 //     );
 //   }
 // }
+import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -88,7 +89,7 @@ class _PartsListState extends State<PartsList> {
 
   Future<void> fetchParts() async {
     final response = await http.get(Uri.parse(
-        'http://192.168.2.60:8000/api/v1/AssetPart/${widget.assetId}/listAssetPart/'));
+        '${MyGlobals.server}/api/v1/AssetPart/${widget.assetId}/listAssetPart/'));
     if (response.statusCode == 200) {
       // final jsonData = json.decode(response.body);
       String source = const Utf8Decoder().convert(response.bodyBytes);

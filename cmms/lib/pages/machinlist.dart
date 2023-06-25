@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cmms/pages/assetDetail.dart';
+import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -25,7 +26,7 @@ class _MachinListState extends State<MachinList> {
 
   Future<void> fetchMachins() async {
     final url =
-        'http://192.168.2.60:8000/api/v1/${widget.assetId}/${widget.catId}/Machines/';
+        '${MyGlobals.server}/api/v1/${widget.assetId}/${widget.catId}/Machines/';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {

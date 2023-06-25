@@ -1,5 +1,6 @@
 import 'package:cmms/model/workorder.dart';
 import 'package:cmms/pages/workorderform.dart';
+import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -17,7 +18,9 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
   List<WorkOrder> _filteredWorkOrders = [];
 
   TextEditingController _searchController = TextEditingController();
-
+  TextEditingController _assetController = TextEditingController();
+  List<Asset> _assets = []; // List to store the fetched assets
+  int assetId = 0;
   String _selectedSortBy = 'Date';
 
   List<String> _selectedStatusFilters = [];
@@ -26,11 +29,95 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
   void initState() {
     super.initState();
     _fetchWorkOrders();
+    _fetchAssets();
+  }
+
+  Future<void> _fetchAssets() async {
+    final response =
+        await http.get(Uri.parse('${MyGlobals.server}/api/v1/locations/'));
+    if (response.statusCode == 200) {
+      // final data = jsonDecode(response.body);
+      String source = const Utf8Decoder().convert(response.bodyBytes);
+      final data = jsonDecode(source);
+      List<Asset> fetchedAssets = [];
+      for (var item in data) {
+        Asset asset = Asset(
+          id: item['id'],
+          name: item['assetName'],
+        );
+        fetchedAssets.add(asset);
+      }
+      setState(() {
+        _assets = fetchedAssets;
+      });
+    } else {
+      throw Exception('Failed to fetch assets');
+    }
+  }
+
+  void _showAssetDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        TextEditingController _searchAssetController = TextEditingController();
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            List<Asset> filteredAssets = _assets.where((asset) {
+              final searchQuery = _searchAssetController.text.toLowerCase();
+              return asset.name.toLowerCase().contains(searchQuery);
+            }).toList();
+
+            return AlertDialog(
+              title: Text('مکان'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: _searchAssetController,
+                    onChanged: (value) {
+                      setState(() {});
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'جستجو',
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: filteredAssets.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(
+                            filteredAssets[index].name,
+                            style: TextStyle(fontFamily: 'Vazir'),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _assetController.text =
+                                  filteredAssets[index].name;
+                              assetId = filteredAssets[index].id;
+                              _fetchWorkOrders();
+                            });
+                            Navigator.pop(context); // Close the dialog
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> _fetchWorkOrders() async {
-    final response =
-        await http.get(Uri.parse('http://192.168.2.60:8000/api/v1/wos2/'));
+    final response = await http
+        .get(Uri.parse('${MyGlobals.server}/api/v1/wos2/?assetID=$assetId'));
 
     if (response.statusCode == 200) {
       String source = const Utf8Decoder().convert(response.bodyBytes);
@@ -102,7 +189,7 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
     // Your API call code goes here
     // Replace the URL with your actual API endpoint
     final response = await http.post(
-      Uri.parse('http://192.168.2.60:8000/api/v1/WO/Complete/'),
+      Uri.parse('${MyGlobals.server}/api/v1/WO/Complete/'),
       body: {
         'id': workOrder.id.toString(),
         // 'asset': workOrder.asset,
@@ -113,6 +200,7 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
     if (response.statusCode == 200) {
       // API call was successful
       print('API call successful');
+      workOrder.setStatus('7');
     } else {
       // API call failed
       print('API call failed');
@@ -124,24 +212,47 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
     return Scaffold(
       body: Column(
         children: [
+          // Padding(
+          //   padding: EdgeInsets.all(16.0),
+          //   child: TextField(
+          //     controller: _searchController,
+          //     onChanged: (value) {
+          //       setState(() {
+          //         _filteredWorkOrders = _workOrders.where((order) {
+          //           return order.problem
+          //                   .toLowerCase()
+          //                   .contains(value.toLowerCase()) ||
+          //               order.asset.toLowerCase().contains(value.toLowerCase());
+          //         }).toList();
+          //       });
+          //     },
+          //     decoration: InputDecoration(
+          //       labelText: 'جستجو',
+          //       suffixIcon: IconButton(
+          //         onPressed: () => _searchController.clear(),
+          //         icon: Icon(Icons.clear),
+          //       ),
+          //     ),
+          //   ),
+          // ),
           Padding(
             padding: EdgeInsets.all(16.0),
             child: TextField(
-              controller: _searchController,
-              onChanged: (value) {
-                setState(() {
-                  _filteredWorkOrders = _workOrders.where((order) {
-                    return order.problem
-                            .toLowerCase()
-                            .contains(value.toLowerCase()) ||
-                        order.asset.toLowerCase().contains(value.toLowerCase());
-                  }).toList();
-                });
+              controller: _assetController,
+              onTap: () {
+                FocusScope.of(context).requestFocus(FocusNode());
+                _showAssetDialog();
               },
               decoration: InputDecoration(
-                labelText: 'Search',
+                labelText: 'مکان',
                 suffixIcon: IconButton(
-                  onPressed: () => _searchController.clear(),
+                  onPressed: () {
+                    setState(() {
+                      _assetController.clear();
+                      assetId = 0;
+                      _fetchWorkOrders();
+                    });
+                  },
                   icon: Icon(Icons.clear),
                 ),
               ),
@@ -151,22 +262,24 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
             spacing: 8.0,
             children: [
               FilterChip(
+                backgroundColor: Colors.blue[50],
                 label: Text(
-                  'معوق',
+                  'درخواست شده',
                   style: TextStyle(
                     fontFamily: 'Vazir',
-                    fontSize: 12.0, overflow: TextOverflow.ellipsis,
+                    fontSize: 12.0,
+                    overflow: TextOverflow.ellipsis,
 
                     // Add more text styles as needed
                   ),
                 ),
-                selected: _selectedStatusFilters.contains('معوق'),
+                selected: _selectedStatusFilters.contains('1'),
                 onSelected: (selected) {
                   setState(() {
                     if (selected) {
-                      _selectedStatusFilters.add('معوق');
+                      _selectedStatusFilters.add('1');
                     } else {
-                      _selectedStatusFilters.remove('معوق');
+                      _selectedStatusFilters.remove('1');
                     }
                     _filterWorkOrders();
                   });
@@ -204,13 +317,13 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
                     // Add more text styles as needed
                   ),
                 ),
-                selected: _selectedStatusFilters.contains('تکمیل'),
+                selected: _selectedStatusFilters.contains('7'),
                 onSelected: (selected) {
                   setState(() {
                     if (selected) {
-                      _selectedStatusFilters.add('تکمیل');
+                      _selectedStatusFilters.add('7');
                     } else {
-                      _selectedStatusFilters.remove('تکمیل');
+                      _selectedStatusFilters.remove('7');
                     }
                     _filterWorkOrders();
                   });
@@ -304,7 +417,8 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
                             SizedBox(width: 8.0),
                             Icon(
                               statusIcon,
-                              color: Colors.blue, // Set the desired icon color
+                              color: Colors.deepOrange[
+                                  100], // Set the desired icon color
                             ),
                           ],
                         ),
@@ -316,18 +430,25 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => WorkOrderFormPage(),
-            ),
-          );
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //         builder: (context) => WorkOrderFormPage(),
+      //       ),
+      //     );
+      //   },
+      //   tooltip: 'Increment',
+      //   child: const Icon(Icons.add),
+      // ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+class Asset {
+  final int id;
+  final String name;
+
+  Asset({required this.id, required this.name});
 }

@@ -114,6 +114,7 @@
 // }
 import 'dart:convert';
 import 'package:cmms/pages/categorize_machines_per_location.dart';
+import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -144,7 +145,7 @@ class _MachineCategoryPageState extends State<MachineCategoryPage> {
   Future<List<MachineCategory>> fetchMachineCategories() async {
     // Replace the URL with your API endpoint
     final response = await http.get(Uri.parse(
-        'http://192.168.2.60:8000/api/v1/Asset/${widget.assetId}/Categories/'));
+        '${MyGlobals.server}/api/v1/Asset/${widget.assetId}/Categories/'));
 
     if (response.statusCode == 200) {
       String source = const Utf8Decoder().convert(response.bodyBytes);

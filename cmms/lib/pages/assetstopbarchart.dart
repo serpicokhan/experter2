@@ -1,3 +1,4 @@
+import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'dart:async';
@@ -31,7 +32,7 @@ class _BarChartPageState extends State<BarChartPage> {
 
   Future<void> fetchData() async {
     final response = await http.get(Uri.parse(
-        'http://192.168.2.60:8000/api/v1/Asset/${widget.assetId}/StopCount/'));
+        '${MyGlobals.server}/api/v1/Asset/${widget.assetId}/StopCount/'));
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       List<DataPoint> dataPoints = [];

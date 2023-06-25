@@ -4,7 +4,7 @@ class WorkOrder {
   final String asset;
   final DateTime dueDate;
   final String maintenanceType;
-  final String status;
+  String status;
   final String priority;
 
   WorkOrder({
@@ -16,4 +16,7 @@ class WorkOrder {
     required this.status,
     required this.priority,
   });
+  void setStatus(String newStatus) {
+    status = newStatus;
+  }
 }

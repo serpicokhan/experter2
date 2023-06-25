@@ -1,3 +1,4 @@
+import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -19,7 +20,7 @@ class _WorkOrderFormPageState extends State<WorkOrderFormPage> {
 
   Future<void> _sendWorkOrder() async {
     if (_formKey.currentState!.validate()) {
-      final url = 'http://192.168.2.60:8000/api/v1/wos2/';
+      final url = '${MyGlobals.server}/api/v1/wos2/';
 
       final response = await http.post(
         Uri.parse(url),

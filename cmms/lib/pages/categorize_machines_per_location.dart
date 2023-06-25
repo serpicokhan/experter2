@@ -4,6 +4,7 @@ import 'package:cmms/pages/assetcategory.dart';
 import 'package:cmms/pages/assetstopbarchart.dart';
 import 'package:cmms/pages/machinechartdata.dart';
 import 'package:cmms/pages/machinlist.dart';
+import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -80,12 +81,10 @@ class AssetsTab extends StatelessWidget {
 
 Future<Map<DateTime, double>> fetchDataFromAPI(int loc) async {
   final response = await http.get(Uri.parse(
-      'http://192.168.2.60:8000/api/v1/Dashboard/' +
+      '${MyGlobals.server}/api/v1/Dashboard/' +
           loc.toString() +
           '/GetTolidBarAPI/'));
-  print('http://192.168.2.60:8000/api/v1/Dashboard/' +
-      loc.toString() +
-      '/GetTolidBarAPI/');
+
   if (response.statusCode == 200) {
     final jsonData = json.decode(response.body);
     Map<DateTime, double> data = {};
