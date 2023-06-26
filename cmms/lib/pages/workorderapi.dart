@@ -207,9 +207,30 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
     }
   }
 
+  void _showSettingsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Settings'),
+          // Add your settings UI here
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('دستور کارها', style: TextStyle(fontFamily: 'Vazir')),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: _showSettingsDialog,
+          ),
+        ],
+      ),
       body: Column(
         children: [
           // Padding(

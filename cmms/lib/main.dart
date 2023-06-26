@@ -139,6 +139,18 @@ class _LocationListViewState extends State<LocationListView> {
     });
   }
 
+  void _showSettingsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Settings'),
+          // Add your settings UI here
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -284,15 +296,21 @@ class _BottomNavigationState extends State<BottomNavigation> {
     });
   }
 
+  void _showSettingsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Settings'),
+          // Add your settings UI here
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'ریسندگی خاطره',
-          style: TextStyle(fontFamily: 'Vazir'),
-        ),
-      ),
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
