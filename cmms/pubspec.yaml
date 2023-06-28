@@ -38,6 +38,7 @@ dependencies:
   charts_flutter: ^0.12.0
   http: ^0.13.5
   intl: ^0.17.0
+  persian_datetime_picker: ^2.6.0
  
   
 

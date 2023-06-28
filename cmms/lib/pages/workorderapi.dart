@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
 class WorkOrderListScreen extends StatefulWidget {
   @override
@@ -393,59 +393,65 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
                   statusIcon = Icons.error;
                 }
 
-                return Dismissible(
-                    key: Key(workOrder.problem),
-                    direction: DismissDirection.endToStart,
-                    background: Container(
-                      color: Colors.green,
-                      alignment: Alignment.centerRight,
-                      padding: EdgeInsets.only(right: 16.0),
-                      child: Icon(
-                        Icons.archive,
-                        color: Colors.white,
+                return Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Dismissible(
+                      key: Key(workOrder.problem),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        color: Colors.green,
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.only(right: 16.0),
+                        child: Icon(
+                          Icons.archive,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    onDismissed: (direction) => _handleDismiss(workOrder),
-                    child: Card(
-                      margin:
-                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                      child: ListTile(
-                        title: Text(
-                          workOrder.problem,
-                          style: TextStyle(
-                            fontFamily: 'Vazir',
-                            fontSize: 12.0, overflow: TextOverflow.ellipsis,
-                            fontWeight: FontWeight.bold,
-
-                            // Add more text styles as needed
+                      onDismissed: (direction) => _handleDismiss(workOrder),
+                      child: Card(
+                        margin: EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            child: Icon(Icons.build),
                           ),
-                        ),
-                        subtitle: Text(
-                          workOrder.asset,
-                          style: TextStyle(
-                            fontFamily: 'Vazir',
+                          title: Text(
+                            workOrder.problem,
+                            style: TextStyle(
+                              fontFamily: 'Vazir',
+                              fontSize: 12.0, overflow: TextOverflow.ellipsis,
+                              fontWeight: FontWeight.bold,
 
-                            // Add more text styles as needed
+                              // Add more text styles as needed
+                            ),
                           ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              DateFormat('yyyy-MM-dd')
-                                  .format(workOrder.dueDate),
+                          subtitle: Text(
+                            workOrder.asset,
+                            style: TextStyle(
+                              fontFamily: 'Vazir',
+
+                              // Add more text styles as needed
                             ),
-                            SizedBox(width: 8.0),
-                            Icon(
-                              statusIcon,
-                              color: Colors.deepOrange[
-                                  100], // Set the desired icon color
-                            ),
-                          ],
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                DateFormat('yyyy-MM-dd')
+                                    .format(workOrder.dueDate),
+                              ),
+                              SizedBox(width: 8.0),
+                              Icon(
+                                statusIcon,
+                                color: Colors.deepOrange[
+                                    100], // Set the desired icon color
+                              ),
+                            ],
+                          ),
+                          // Add more fields as needed
                         ),
-// Add more fields as needed
-                      ),
-                    ));
+                      )),
+                );
               },
             ),
           ),

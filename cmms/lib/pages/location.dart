@@ -65,80 +65,97 @@ class _LocationListState extends State<LocationList> {
       return CircularProgressIndicator(); // Show loading indicator while fetching data
     }
 
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.all(16.0),
-          child: TextField(
-            onChanged: (value) => filterLocations(value),
-            decoration: InputDecoration(
-              labelText: 'Search',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('سایت', style: TextStyle(fontFamily: 'Vazir')),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () => {},
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.0),
+            child: TextField(
+              onChanged: (value) => filterLocations(value),
+              decoration: InputDecoration(
+                labelText: 'Search',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
             ),
           ),
-        ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: filteredLocations.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Card(
-                margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: ListTile(
-                  title: Text(
-                    filteredLocations[index].name,
-                    style: TextStyle(
-                      fontFamily: 'Vazir',
-                      fontSize: 16.0,
-                    ),
-                  ),
-                  subtitle: Text(
-                    filteredLocations[index].category.toString(),
-                    style: TextStyle(
-                      fontFamily: 'Vazir',
-                      fontSize: 16.0,
-                    ),
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.info_outline),
-                      SizedBox(width: 4.0),
-                      Container(
-                        padding: EdgeInsets.all(4.0),
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: Text(
-                          '5', // Replace with your batch counter value
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Vazir',
-                            fontSize: 12.0,
-                          ),
+          Expanded(
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: ListView.builder(
+                itemCount: filteredLocations.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Card(
+                    margin:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                          child: Icon(Icons.military_tech_outlined)),
+                      title: Text(
+                        filteredLocations[index].name,
+                        style: TextStyle(
+                          fontFamily: 'Vazir',
+                          fontSize: 16.0,
                         ),
                       ),
-                    ],
-                  ),
-                  onTap: () {
-                    // Handle location item tap
-                    // You can navigate to asset list or perform any desired action here
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AssetDetailsView(
-                                assetId: filteredLocations[index].id,
-                                assetName: filteredLocations[index].name,
-                              )),
-                    );
-                  },
-                ),
-              );
-            },
+                      subtitle: Text(
+                        filteredLocations[index].category.toString(),
+                        style: TextStyle(
+                          fontFamily: 'Vazir',
+                          fontSize: 16.0,
+                        ),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.info_outline),
+                          SizedBox(width: 4.0),
+                          Container(
+                            padding: EdgeInsets.all(4.0),
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Text(
+                              '5', // Replace with your batch counter value
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Vazir',
+                                fontSize: 12.0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      onTap: () {
+                        // Handle location item tap
+                        // You can navigate to asset list or perform any desired action here
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AssetDetailsView(
+                                    assetId: filteredLocations[index].id,
+                                    assetName: filteredLocations[index].name,
+                                  )),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
