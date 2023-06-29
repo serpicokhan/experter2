@@ -4,6 +4,36 @@ import 'package:cmms/pages/login.dart';
 import 'package:cmms/pages/test.dart';
 import 'package:cmms/pages/workorderapi.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+Future<bool> checkLoginStatus() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  return isLoggedIn;
+}
+
+class AuthWrapper extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: checkLoginStatus(),
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Show a loading indicator while checking login status
+          return CircularProgressIndicator();
+        } else {
+          if (snapshot.data == true) {
+            // User is logged in, navigate to the desired screen
+            return BottomNavigation();
+          } else {
+            // User is not logged in, navigate to the login screen
+            return LoginScreen();
+          }
+        }
+      },
+    );
+  }
+}
 
 void main() {
   runApp(const MyApp());
@@ -29,7 +59,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: BottomNavigation(),
+      home: AuthWrapper(),
     );
   }
 }
@@ -45,7 +75,7 @@ class _LocationListViewState extends State<LocationListView> {
   static List<Widget> _widgetOptions = <Widget>[
     WorkOrderListScreen(),
     LocationList(),
-    LoginPage(),
+    LoginScreen(),
     PlaceholderWidget(),
   ];
 
@@ -256,7 +286,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
           children: [
             WorkOrderListScreen(),
             LocationList(),
-            LoginPage(),
+            LoginScreen(),
             PlaceholderWidget(),
           ],
         ),

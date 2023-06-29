@@ -1,95 +1,98 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginPage extends StatefulWidget {
+import '../main.dart';
+
+class LoginScreen extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  TextEditingController usernameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  bool isLoading = false;
+  Future<void> _login() async {
+    final String username = _usernameController.text.trim();
+    final String password = _passwordController.text.trim();
 
-  Future<void> login() async {
-    setState(() {
-      isLoading = true;
-    });
+    final String apiUrl = 'http://192.168.2.60:8000/api-token-auth/';
 
-    String username = usernameController.text;
-    String password = passwordController.text;
-
-    // Make API request to Django backend to obtain token
-    var url = Uri.parse('https://your-django-api-url/login');
-    var response = await http.post(
-      url,
-      body: {'username': username, 'password': password},
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'username': username,
+        'password': password,
+      }),
     );
 
     if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body);
-      String token = jsonResponse['token'];
+      // Login successful, handle the response here
+      final responseData = json.decode(response.body);
+      // Store the authentication token or session information as needed
+      // For example, you can save the token using shared preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', responseData['token']);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => BottomNavigation()),
+      );
 
-      // Save token using shared preferences
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // await prefs.setString('token', token);
-
-      // Navigate to the next screen or perform any other action
-      // e.g., Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      // Redirect the user to the home screen or perform any other desired actions
     } else {
-      // Handle login error
+      // Login failed, handle the error here
+      final errorData = json.decode(response.body);
+      final errorMessage = errorData['error'];
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: Text('Login Error'),
-          content: Text('Invalid username or password'),
-          actions: <Widget>[
+          content: Text(errorMessage),
+          actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
               child: Text('OK'),
+              onPressed: () => Navigator.pop(context),
             ),
           ],
         ),
       );
     }
-
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login Page'),
+        title: Text('Login'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
-              controller: usernameController,
+              controller: _usernameController,
               decoration: InputDecoration(
                 labelText: 'Username',
               ),
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 12.0),
             TextField(
-              controller: passwordController,
+              controller: _passwordController,
               decoration: InputDecoration(
                 labelText: 'Password',
               ),
               obscureText: true,
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 24.0),
             ElevatedButton(
-              onPressed: isLoading ? null : login,
-              child: isLoading ? CircularProgressIndicator() : Text('Login'),
+              onPressed: _login,
+              child: Text('Login'),
             ),
           ],
         ),

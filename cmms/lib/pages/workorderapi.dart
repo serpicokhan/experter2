@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WorkOrderListScreen extends StatefulWidget {
   @override
@@ -22,12 +23,14 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
   List<Asset> _assets = []; // List to store the fetched assets
   int assetId = 0;
   String _selectedSortBy = 'Date';
+  String? token = '';
 
   List<String> _selectedStatusFilters = [];
 
   @override
   void initState() {
     super.initState();
+    readData();
     _fetchWorkOrders();
     _fetchAssets();
   }
@@ -115,9 +118,33 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
     );
   }
 
+  Future<void> readData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Read a string value
+    token = prefs.getString('token');
+
+    // Read an int value
+  }
+
   Future<void> _fetchWorkOrders() async {
-    final response = await http
-        .get(Uri.parse('${MyGlobals.server}/api/v1/wos2/?assetID=$assetId'));
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Read a string value
+    token = prefs.getString('token');
+    final response = await http.post(
+      Uri.parse('${MyGlobals.server}/api/v1/wos2/?assetID=$assetId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+      body: json.encode({
+        'Authorization': 'Token $token',
+      }),
+    );
+    // final response = await http.get(Uri.parse(
+    //     '${MyGlobals.server}/api/v1/wos2/?assetID=$assetId&token=' +
+    //         (token ?? '')));
 
     if (response.statusCode == 200) {
       String source = const Utf8Decoder().convert(response.bodyBytes);
