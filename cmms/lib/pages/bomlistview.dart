@@ -136,27 +136,30 @@ class _PartsListState extends State<PartsList> {
               separatorBuilder: (BuildContext context, int index) => Divider(),
               itemBuilder: (BuildContext context, int index) {
                 final part = filteredParts[index];
-                return ListTile(
-                  title: Text(
-                    part.name,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Code: ${part.code}',
-                        style: TextStyle(fontFamily: 'Vazir'),
-                      ),
-                      Text(
-                        'ID: ${part.id.toString()}',
-                        style: TextStyle(fontFamily: 'Vazir'),
-                      ),
-                      Text(
-                        'Qty: ${part.qty.toString()}',
-                        style: TextStyle(fontFamily: 'Vazir'),
-                      ),
-                    ],
+                return Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: ListTile(
+                    title: Text(
+                      part.name,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Code: ${part.code}',
+                          style: TextStyle(fontFamily: 'Vazir'),
+                        ),
+                        Text(
+                          'ID: ${part.id.toString()}',
+                          style: TextStyle(fontFamily: 'Vazir'),
+                        ),
+                        Text(
+                          'Qty: ${part.qty.toString()}',
+                          style: TextStyle(fontFamily: 'Vazir'),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

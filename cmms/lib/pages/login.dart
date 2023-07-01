@@ -49,20 +49,26 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       // Login failed, handle the error here
       final errorData = json.decode(response.body);
-      final errorMessage = errorData['error'];
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Login Error'),
-          content: Text(errorMessage),
-          actions: [
-            TextButton(
-              child: Text('OK'),
-              onPressed: () => Navigator.pop(context),
+      if (errorData['non_field_errors'][0] ==
+          'Unable to log in with provided credentials.') {
+        final errorMessage = "رمز و نام کاربری نامعتبر";
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(
+              'خطا',
+              style: TextStyle(fontFamily: 'Vazir'),
             ),
-          ],
-        ),
-      );
+            content: Text(errorMessage, style: TextStyle(fontFamily: 'Vazir')),
+            actions: [
+              TextButton(
+                child: Text('OK'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
@@ -70,33 +76,36 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: Text('ورود'),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(
-                labelText: 'Username',
+      body: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: 'نام کاربری',
+                ),
               ),
-            ),
-            SizedBox(height: 12.0),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
+              SizedBox(height: 12.0),
+              TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'رمز',
+                ),
+                obscureText: true,
               ),
-              obscureText: true,
-            ),
-            SizedBox(height: 24.0),
-            ElevatedButton(
-              onPressed: _login,
-              child: Text('Login'),
-            ),
-          ],
+              SizedBox(height: 24.0),
+              ElevatedButton(
+                onPressed: _login,
+                child: Text('Login'),
+              ),
+            ],
+          ),
         ),
       ),
     );
