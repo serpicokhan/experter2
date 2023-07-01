@@ -256,61 +256,66 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF296A52), // Darker green shade
-            Color(0xFF58A68D), // Medium green shade
-            Color(0xFFA4D4C7), // Light green shade
-            Color(0xFFF1FAF7), // Very light tone
-          ],
-          stops: [
-            0.0,
-            0.4,
-            0.8,
-            1.0
-          ], // Adjust the color stops for smooth transitions
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF296A52), // Darker green shade
+              Color(0xFF58A68D), // Medium green shade
+              Color(0xFFA4D4C7), // Light green shade
+              Color(0xFFF1FAF7), // Very light tone
+            ],
+            stops: [
+              0.0,
+              0.4,
+              0.8,
+              1.0
+            ], // Adjust the color stops for smooth transitions
+          ),
         ),
-      ),
-      child: Scaffold(
-        body: PageView(
-          controller: _pageController,
-          onPageChanged: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          children: [
-            WorkOrderListScreen(),
-            LocationList(),
-            LoginScreen(),
-            PlaceholderWidget(),
-          ],
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          backgroundColor: Colors.white,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.grey,
-          items: _icons
-              .asMap()
-              .map(
-                (index, icon) => MapEntry(
-                  index,
-                  BottomNavigationBarItem(
-                    icon: Icon(icon),
-                    label: '',
-                    activeIcon: Icon(_filledIcons[index]),
+        child: Scaffold(
+          body: PageView(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            children: [
+              WorkOrderListScreen(),
+              LocationList(),
+              LoginScreen(),
+              PlaceholderWidget(),
+            ],
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            backgroundColor: Colors.white,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Colors.blue,
+            unselectedItemColor: Colors.grey,
+            items: _icons
+                .asMap()
+                .map(
+                  (index, icon) => MapEntry(
+                    index,
+                    BottomNavigationBarItem(
+                      icon: Icon(icon),
+                      label: '',
+                      activeIcon: Icon(_filledIcons[index]),
+                    ),
                   ),
-                ),
-              )
-              .values
-              .toList(),
+                )
+                .values
+                .toList(),
+          ),
         ),
       ),
     );

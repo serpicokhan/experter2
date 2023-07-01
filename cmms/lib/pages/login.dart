@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final String username = _usernameController.text.trim();
     final String password = _passwordController.text.trim();
 
-    final String apiUrl = 'http://192.168.2.60:8000/api-token-auth/';
+    final String apiUrl = '${MyGlobals.server}/api-token-auth/';
 
     final response = await http.post(
       Uri.parse(apiUrl),
@@ -38,7 +39,8 @@ class _LoginScreenState extends State<LoginScreen> {
       // For example, you can save the token using shared preferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', responseData['token']);
-      Navigator.push(
+
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => BottomNavigation()),
       );
