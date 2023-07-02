@@ -75,7 +75,7 @@ class _LocationListViewState extends State<LocationListView> {
   static List<Widget> _widgetOptions = <Widget>[
     WorkOrderListScreen(),
     LocationList(),
-    LoginScreen(),
+    LoginDemo(),
     PlaceholderWidget(),
   ];
 
@@ -290,7 +290,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
             children: [
               WorkOrderListScreen(),
               LocationList(),
-              LoginScreen(),
+              LoginDemo(),
               PlaceholderWidget(),
             ],
           ),
