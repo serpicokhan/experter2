@@ -1,3 +1,3 @@
 class MyGlobals {
-  static String server = 'http://172.16.2.149:8000';
+  static String server = 'http://192.168.2.60:8000';
 }

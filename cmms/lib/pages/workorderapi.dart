@@ -215,8 +215,10 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
   Future<void> _makeApiCall(WorkOrder workOrder) async {
     // Your API call code goes here
     // Replace the URL with your actual API endpoint
+    final int assetid = assetId;
     final response = await http.post(
-      Uri.parse('${MyGlobals.server}/api/v1/WO/Complete/'),
+      Uri.parse('${MyGlobals.server}/api/v1/WO/Complete/?assetID=' +
+          assetid.toString()),
       body: {
         'id': workOrder.id.toString(),
         // 'asset': workOrder.asset,
@@ -443,7 +445,7 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
                             child: Icon(Icons.build),
                           ),
                           title: Text(
-                            workOrder.problem,
+                            '${workOrder.problem}',
                             style: TextStyle(
                               fontFamily: 'Vazir',
                               fontSize: 12.0, overflow: TextOverflow.ellipsis,
@@ -453,7 +455,7 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
                             ),
                           ),
                           subtitle: Text(
-                            workOrder.asset,
+                            '${workOrder.id}: ${workOrder.asset}',
                             style: TextStyle(
                               fontFamily: 'Vazir',
 
