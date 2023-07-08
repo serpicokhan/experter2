@@ -39,6 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // For example, you can save the token using shared preferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', responseData['token']);
+      await prefs.setString('isLoggedIn', 'true');
 
       Navigator.pushReplacement(
         context,
@@ -118,12 +119,73 @@ class LoginDemo extends StatefulWidget {
 }
 
 class _LoginDemoState extends State<LoginDemo> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _login() async {
+    final String username = _usernameController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    final String apiUrl = '${MyGlobals.server}/api-token-auth/';
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'username': username,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Login successful, handle the response here
+      final responseData = json.decode(response.body);
+      // Store the authentication token or session information as needed
+      // For example, you can save the token using shared preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', responseData['token']);
+      await prefs.setBool('isLoggedIn', true);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => BottomNavigation()),
+      );
+
+      // Redirect the user to the home screen or perform any other desired actions
+    } else {
+      // Login failed, handle the error here
+      final errorData = json.decode(response.body);
+      if (errorData['non_field_errors'][0] ==
+          'Unable to log in with provided credentials.') {
+        final errorMessage = "رمز و نام کاربری نامعتبر";
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(
+              'خطا',
+              style: TextStyle(fontFamily: 'Vazir'),
+            ),
+            content: Text(errorMessage, style: TextStyle(fontFamily: 'Vazir')),
+            actions: [
+              TextButton(
+                child: Text('OK'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Login Page"),
+        title: Text(""),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -144,10 +206,12 @@ class _LoginDemoState extends State<LoginDemo> {
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
+                controller: _usernameController,
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Email',
-                    hintText: 'Enter valid email id as abc@gmail.com'),
+                  border: OutlineInputBorder(),
+                  labelText: 'نام کاربری',
+                  // hintText: 'Enter valid email id as abc@gmail.com'
+                ),
               ),
             ),
             Padding(
@@ -155,42 +219,42 @@ class _LoginDemoState extends State<LoginDemo> {
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
               //padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Password',
-                    hintText: 'Enter secure password'),
+                  border: OutlineInputBorder(),
+                  labelText: 'Password',
+                  // hintText: 'Enter secure password'
+                ),
               ),
             ),
-            FlatButton(
-              onPressed: () {
-                //TODO FORGOT PASSWORD SCREEN GOES HERE
-              },
-              child: Text(
-                'Forgot Password',
-                style: TextStyle(color: Colors.blue, fontSize: 15),
-              ),
-            ),
+            // ElevatedButton(
+            //   onPressed: () {
+            //     //TODO FORGOT PASSWORD SCREEN GOES HERE
+            //   },
+            //   child: Text(
+            //     'Forgot Password',
+            //     style: TextStyle(color: Colors.blue, fontSize: 15),
+            //   ),
+            // ),
             Container(
               height: 50,
               width: 250,
               decoration: BoxDecoration(
                   color: Colors.blue, borderRadius: BorderRadius.circular(20)),
-              child: FlatButton(
-                onPressed: () {
-                  // Navigator.push(
-                  //     context, MaterialPageRoute(builder: (_) => button()));
-                },
+              child: ElevatedButton(
+                onPressed: _login,
                 child: Text(
-                  'Login',
-                  style: TextStyle(color: Colors.white, fontSize: 25),
+                  'ورود',
+                  style: TextStyle(
+                      color: Colors.white, fontSize: 25, fontFamily: 'Vazir'),
                 ),
               ),
             ),
             SizedBox(
               height: 130,
             ),
-            Text('New User? Create Account')
+            // Text('New User? Create Account')
           ],
         ),
       ),

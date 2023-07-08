@@ -27,7 +27,7 @@ class AuthWrapper extends StatelessWidget {
             return BottomNavigation();
           } else {
             // User is not logged in, navigate to the login screen
-            return LoginScreen();
+            return LoginDemo();
           }
         }
       },
