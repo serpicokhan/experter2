@@ -124,14 +124,17 @@ class _LoginDemoState extends State<LoginDemo> {
   final TextEditingController _passwordController = TextEditingController();
   @override
   void initState() {
-    FirebaseMessaging _firebaseMessaging =
-        FirebaseMessaging.instance; // Change here
-    _firebaseMessaging.getToken().then((token) {
-      print("token is $token");
-    });
+    // FirebaseMessaging _firebaseMessaging =
+    //     FirebaseMessaging.instance; // Change here
+    //     _firebaseMessaging.getToken()
+    // // _firebaseMessaging.getToken().then((token) {
+    // //   // print("token is $token");
+    // // });
   }
 
   Future<void> _login() async {
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    print(fcmToken);
     final String username = _usernameController.text.trim();
     final String password = _passwordController.text.trim();
 
@@ -151,16 +154,66 @@ class _LoginDemoState extends State<LoginDemo> {
     if (response.statusCode == 200) {
       // Login successful, handle the response here
       final responseData = json.decode(response.body);
+      _sendFCMTOKEN();
       // Store the authentication token or session information as needed
       // For example, you can save the token using shared preferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', responseData['token']);
+      await prefs.setString('fcmtoken', fcmToken!);
       await prefs.setBool('isLoggedIn', true);
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => BottomNavigation()),
       );
+
+      // Redirect the user to the home screen or perform any other desired actions
+    } else {
+      // Login failed, handle the error here
+      final errorData = json.decode(response.body);
+      if (errorData['non_field_errors'][0] ==
+          'Unable to log in with provided credentials.') {
+        final errorMessage = "رمز و نام کاربری نامعتبر";
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(
+              'خطا',
+              style: TextStyle(fontFamily: 'Vazir'),
+            ),
+            content: Text(errorMessage, style: TextStyle(fontFamily: 'Vazir')),
+            actions: [
+              TextButton(
+                child: Text('OK'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _sendFCMTOKEN() async {
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+
+    final String apiUrl = '${MyGlobals.server}/fcm/';
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'fcm': fcmToken,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Login successful, handle the response here
+      final responseData = json.decode(response.body);
+      // Store the authentication token or session information as needed
+      // For example, you can save the token using shared preferences
 
       // Redirect the user to the home screen or perform any other desired actions
     } else {

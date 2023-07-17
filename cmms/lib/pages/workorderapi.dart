@@ -1,6 +1,7 @@
 import 'package:cmms/model/workorder.dart';
 import 'package:cmms/pages/workorderform.dart';
 import 'package:cmms/util/util.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -63,7 +64,7 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
       context: context,
       builder: (BuildContext context) {
         TextEditingController _searchAssetController = TextEditingController();
-
+        // _searchAssetController.text = getfcm() as String;
         return StatefulBuilder(
           builder: (context, setState) {
             List<Asset> filteredAssets = _assets.where((asset) {
@@ -246,6 +247,11 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
         );
       },
     );
+  }
+
+  Future<String?> getfcm() async {
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    return fcmToken;
   }
 
   @override

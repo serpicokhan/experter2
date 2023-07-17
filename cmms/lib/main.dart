@@ -4,8 +4,11 @@ import 'package:cmms/pages/login.dart';
 import 'package:cmms/pages/qrcode.dart';
 import 'package:cmms/pages/test.dart';
 import 'package:cmms/pages/workorderapi.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 Future<bool> checkLoginStatus() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -36,8 +39,11 @@ class AuthWrapper extends StatelessWidget {
   }
 }
 
-void main() {
+void main() async {
   runApp(const MyApp());
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 }
 
 class MyApp extends StatelessWidget {

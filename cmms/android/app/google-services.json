@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "44432274157",
+    "project_id": "cmms2020-11ee8",
+    "storage_bucket": "cmms2020-11ee8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:44432274157:android:caf6011f6e6e4a0784d2e4",
+        "android_client_info": {
+          "package_name": "com.example.cmms"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "44432274157-t5sgaopq14qjv26cuinqe3ff0utu6s75.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALrSJlDZrYFy4KrIb3ZSSoCg8VOaA0c_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "44432274157-t5sgaopq14qjv26cuinqe3ff0utu6s75.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "44432274157-fpdoi2shsf246fj7uag477ab3q8kmeei.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cmms"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
