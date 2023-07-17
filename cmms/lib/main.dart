@@ -1,6 +1,7 @@
 import 'package:cmms/pages/assetDetail.dart';
 import 'package:cmms/pages/location.dart';
 import 'package:cmms/pages/login.dart';
+import 'package:cmms/pages/qrcode.dart';
 import 'package:cmms/pages/test.dart';
 import 'package:cmms/pages/workorderapi.dart';
 import 'package:flutter/material.dart';

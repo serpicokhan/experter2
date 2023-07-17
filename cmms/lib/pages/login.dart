@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cmms/util/util.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -121,6 +122,14 @@ class LoginDemo extends StatefulWidget {
 class _LoginDemoState extends State<LoginDemo> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  @override
+  void initState() {
+    FirebaseMessaging _firebaseMessaging =
+        FirebaseMessaging.instance; // Change here
+    _firebaseMessaging.getToken().then((token) {
+      print("token is $token");
+    });
+  }
 
   Future<void> _login() async {
     final String username = _usernameController.text.trim();
@@ -227,6 +236,10 @@ class _LoginDemoState extends State<LoginDemo> {
                   // hintText: 'Enter secure password'
                 ),
               ),
+            ),
+
+            SizedBox(
+              height: 100,
             ),
             // ElevatedButton(
             //   onPressed: () {
