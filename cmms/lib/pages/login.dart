@@ -154,14 +154,14 @@ class _LoginDemoState extends State<LoginDemo> {
     if (response.statusCode == 200) {
       // Login successful, handle the response here
       final responseData = json.decode(response.body);
-      _sendFCMTOKEN();
+
       // Store the authentication token or session information as needed
       // For example, you can save the token using shared preferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', responseData['token']);
       await prefs.setString('fcmtoken', fcmToken!);
       await prefs.setBool('isLoggedIn', true);
-
+      _sendFCMTOKEN(responseData['token']);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => BottomNavigation()),
@@ -194,7 +194,7 @@ class _LoginDemoState extends State<LoginDemo> {
     }
   }
 
-  Future<void> _sendFCMTOKEN() async {
+  Future<void> _sendFCMTOKEN(String token) async {
     final fcmToken = await FirebaseMessaging.instance.getToken();
 
     final String apiUrl = '${MyGlobals.server}/fcm/';
@@ -203,6 +203,7 @@ class _LoginDemoState extends State<LoginDemo> {
       Uri.parse(apiUrl),
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Token ' + token
       },
       body: json.encode({
         'fcm': fcmToken,
