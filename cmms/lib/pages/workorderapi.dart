@@ -254,6 +254,45 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
     return fcmToken;
   }
 
+  void _displayModalForm(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Modal Form',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 16),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Name'),
+              ),
+              SizedBox(height: 8),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Email'),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  // Perform form submission logic here
+                  Navigator.of(context).pop(); // Close the modal form
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -492,18 +531,19 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
           ),
         ],
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     Navigator.push(
-      //       context,
-      //       MaterialPageRoute(
-      //         builder: (context) => WorkOrderFormPage(),
-      //       ),
-      //     );
-      //   },
-      //   tooltip: 'Increment',
-      //   child: const Icon(Icons.add),
-      // ), // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // _displayModalForm(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WorkOrderFormPage(),
+            ),
+          );
+        },
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
