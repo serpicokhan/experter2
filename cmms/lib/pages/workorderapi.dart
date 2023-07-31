@@ -157,7 +157,7 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
         WorkOrder workOrder = WorkOrder(
           id: item['id'],
           problem: item['summaryofIssue'],
-          asset: item['woAsset']["assetName"],
+          asset: item['woAsset']["assetName"] ?? '',
           dueDate: DateTime.parse(item['datecreated']),
           maintenanceType: item['maintenanceType']["name"],
           status: item['woStatus'].toString(),
@@ -537,7 +537,7 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => WorkOrderFormPage(),
+              builder: (context) => FormScreen(),
             ),
           );
         },

@@ -1,161 +1,209 @@
 import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class WorkOrderFormPage extends StatefulWidget {
+import 'package:shared_preferences/shared_preferences.dart';
+
+class FormScreen extends StatefulWidget {
   @override
-  _WorkOrderFormPageState createState() => _WorkOrderFormPageState();
+  _FormScreenState createState() => _FormScreenState();
 }
 
-class _WorkOrderFormPageState extends State<WorkOrderFormPage> {
-  final _formKey = GlobalKey<FormState>();
-
-  TextEditingController _problemController = TextEditingController();
-  TextEditingController _assetController = TextEditingController();
-  TextEditingController _dueDateController = TextEditingController();
-  TextEditingController _maintenanceTypeController = TextEditingController();
-  TextEditingController _statusController = TextEditingController();
-  TextEditingController _priorityController = TextEditingController();
-
-  Future<void> _sendWorkOrder() async {
-    if (_formKey.currentState!.validate()) {
-      final url = '${MyGlobals.server}/api/v1/wos2/';
-
-      final response = await http.post(
-        Uri.parse(url),
-        body: {
-          'problem': _problemController.text,
-          'asset': _assetController.text,
-          'dueDate': _dueDateController.text,
-          'maintenanceType': _maintenanceTypeController.text,
-          'status': _statusController.text,
-          'priority': _priorityController.text,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        // API call successful
-        final data = jsonDecode(response.body);
-        // Handle the response data as needed
-      } else {
-        // API call failed
-        // Handle the error
-      }
-    }
-  }
-
-  Future<void> _showAssetSelectionDialog() async {
-    String? selectedAsset;
-
-    List<String> assetList = ['Asset 1', 'Asset 2', 'Asset 3', 'Asset 4'];
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Select Asset'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                onChanged: (value) {
-                  // Perform search logic here
-                },
-                decoration: InputDecoration(
-                  labelText: 'Search',
-                ),
-              ),
-              SizedBox(height: 8.0),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: assetList.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(assetList[index]),
-                      onTap: () {
-                        setState(() {
-                          selectedAsset = assetList[index];
-                        });
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    ).then((value) {
-      // Update the asset field with the selected asset
-      if (selectedAsset != null) {
-        setState(() {
-          _assetController.text = selectedAsset!;
-        });
-      }
-    });
-  }
+class _FormScreenState extends State<FormScreen> {
+  String input1Value = '';
+  String input2Value = '';
+  String input2id = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Work Order Form'),
+        title: Text('Form with Modal'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _problemController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a problem';
-                  }
-                  return null;
-                },
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              onChanged: (value) {
+                setState(() {
+                  input1Value = value;
+                });
+              },
+              decoration: InputDecoration(labelText: 'Input 1'),
+            ),
+            SizedBox(height: 16),
+            GestureDetector(
+              onTap: () {
+                _openModal(context);
+              },
+              child: TextFormField(
+                enabled: false,
+                controller: TextEditingController(text: input2Value),
                 decoration: InputDecoration(
-                  labelText: 'Problem',
+                  labelText: 'Input 2',
+                  suffixIcon: Icon(Icons.edit),
                 ),
               ),
-              GestureDetector(
-                onTap: _showAssetSelectionDialog,
-                child: AbsorbPointer(
-                  child: TextFormField(
-                    controller: _assetController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please select an asset';
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'Asset',
-                    ),
-                  ),
-                ),
-              ),
-              // Add more form fields as needed
-
-              ElevatedButton(
-                onPressed: _sendWorkOrder,
-                child: Text('Send'),
-              ),
-            ],
-          ),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                _saveForm();
+              },
+              child: Text('Save Form'),
+            ),
+          ],
         ),
       ),
     );
   }
+
+  void _openModal(BuildContext context) async {
+    final selectedAsset = await showModalBottomSheet<AssetData>(
+      context: context,
+      builder: (context) => YourModalWidget(),
+    );
+
+    if (selectedAsset != null) {
+      setState(() {
+        input2Value = '${selectedAsset.name} (ID: ${selectedAsset.id})';
+        input2id = selectedAsset.id;
+      });
+    }
+  }
+
+  void _showSnackBar(BuildContext context, String error) {
+    final snackBar = SnackBar(
+      content: Text(error),
+      duration: Duration(
+          seconds:
+              3), // Set the duration for how long the SnackBar should be visible.
+      action: SnackBarAction(
+        label: 'Dismiss',
+        onPressed: () {
+          // Code to be executed when the 'Dismiss' action is pressed.
+          // You can add any functionality here.
+        },
+      ),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _saveForm() async {
+    // Replace 'your_url' with the actual URL to which you want to post the data.
+    // final url = Uri.parse(${MyGlobals.server}'/api/v1/RegMini/');
+
+    final Map<String, dynamic> data = {
+      'summaryofIssue': input1Value,
+      'woAsset': input2id,
+    };
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      // Read a string value
+      final token = prefs.getString('token');
+      final response = await http.post(
+        Uri.parse('${MyGlobals.server}/api/v1/RegMini/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token $token',
+        },
+        body: json.encode(data),
+      );
+      // final response = await http.post(url, body: json.encode(data));
+
+      if (response.statusCode == 200) {
+        // Handle successful response here, if needed.
+        // For example, show a success message or navigate to another page.
+      } else {
+        // Handle error response here, if needed.
+        // For example, show an error message.
+      }
+    } catch (error) {
+      // Handle exceptions here, if needed.
+      // For example, show an error message.
+      _showSnackBar(context, error.toString());
+    }
+  }
+}
+
+class YourModalWidget extends StatefulWidget {
+  @override
+  _YourModalWidgetState createState() => _YourModalWidgetState();
+}
+
+class _YourModalWidgetState extends State<YourModalWidget> {
+  TextEditingController searchController = TextEditingController();
+  List<AssetData> allAssets = [
+    AssetData(id: '6936', name: 'Asset 1'),
+    AssetData(id: '6942', name: 'Asset 2'),
+    AssetData(id: '6961', name: 'Asset 3'),
+    // Add more assets as needed
+  ];
+
+  List<AssetData> filteredAssets = [];
+
+  @override
+  void initState() {
+    super.initState();
+    filteredAssets.addAll(allAssets);
+  }
+
+  void _filterAssets(String query) {
+    filteredAssets.clear();
+    filteredAssets.addAll(allAssets.where((asset) =>
+        asset.name.toLowerCase().contains(query.toLowerCase()) ||
+        asset.id.toLowerCase().contains(query.toLowerCase())));
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextFormField(
+            controller: searchController,
+            onChanged: (value) {
+              _filterAssets(value);
+            },
+            decoration: InputDecoration(
+              labelText: 'Search Assets',
+              suffixIcon: Icon(Icons.search),
+            ),
+          ),
+          SizedBox(height: 16.0),
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredAssets.length,
+              itemBuilder: (context, index) {
+                AssetData asset = filteredAssets[index];
+                return ListTile(
+                  onTap: () {
+                    Navigator.pop(context, asset);
+                  },
+                  title: Text(asset.name),
+                  subtitle: Text('ID: ${asset.id}'),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AssetData {
+  final String id;
+  final String name;
+
+  AssetData({required this.id, required this.name});
 }
