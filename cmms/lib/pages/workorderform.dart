@@ -101,6 +101,8 @@ class _FormScreenState extends State<FormScreen> {
     final Map<String, dynamic> data = {
       'summaryofIssue': input1Value,
       'woAsset': input2id,
+      'maintenanceType': 18,
+      'woStatus': 1
     };
 
     try {
@@ -117,18 +119,22 @@ class _FormScreenState extends State<FormScreen> {
       );
       // final response = await http.post(url, body: json.encode(data));
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         // Handle successful response here, if needed.
         // For example, show a success message or navigate to another page.
+
       } else {
         // Handle error response here, if needed.
         // For example, show an error message.
+        _showSnackBar(
+            context, 'خطایی به وجود آمده است' + response.statusCode.toString());
       }
     } catch (error) {
       // Handle exceptions here, if needed.
       // For example, show an error message.
       _showSnackBar(context, error.toString());
     }
+    Navigator.pop(context);
   }
 }
 
