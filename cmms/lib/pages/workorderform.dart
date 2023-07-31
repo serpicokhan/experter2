@@ -98,12 +98,14 @@ class _FormScreenState extends State<FormScreen> {
   void _saveForm() async {
     // Replace 'your_url' with the actual URL to which you want to post the data.
     // final url = Uri.parse(${MyGlobals.server}'/api/v1/RegMini/');
+     DateTime currentDateTime = DateTime.now();
 
     final Map<String, dynamic> data = {
       'summaryofIssue': input1Value,
       'woAsset': input2id,
       'maintenanceType': 18,
-      'woStatus': 1
+      'woStatus': 1,
+      'timecreated': '${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}''
     };
 
     try {
