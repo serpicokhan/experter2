@@ -64,7 +64,7 @@ class _FormScreenState extends State<FormScreen> {
   }
 
   void _openModal(BuildContext context) async {
-    final selectedAsset = await showModalBottomSheet<AssetData>(
+    final selectedAsset = await showModalBottomSheet<Location>(
       context: context,
       builder: (context) => YourModalWidget(),
     );
@@ -72,7 +72,7 @@ class _FormScreenState extends State<FormScreen> {
     if (selectedAsset != null) {
       setState(() {
         input2Value = '${selectedAsset.name} (ID: ${selectedAsset.id})';
-        input2id = selectedAsset.id;
+        input2id = selectedAsset.id.toString();
       });
     }
   }
@@ -148,29 +148,67 @@ class YourModalWidget extends StatefulWidget {
   _YourModalWidgetState createState() => _YourModalWidgetState();
 }
 
+class Location {
+  final String name;
+  final String category;
+  final int id;
+
+  Location({required this.name, required this.id, required this.category});
+}
+
 class _YourModalWidgetState extends State<YourModalWidget> {
   TextEditingController searchController = TextEditingController();
-  List<AssetData> allAssets = [
-    AssetData(id: '6936', name: 'Asset 1'),
-    AssetData(id: '6942', name: 'Asset 2'),
-    AssetData(id: '6961', name: 'Asset 3'),
-    // Add more assets as needed
-  ];
+  List<Location> locations = [];
+  List<Location> filteredLocations = [];
 
-  List<AssetData> filteredAssets = [];
+  Future<void> fetchLocations() async {
+    final url = '${MyGlobals.server}/api/v1/locations/';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      String source = const Utf8Decoder().convert(response.bodyBytes);
+      final data = jsonDecode(source);
+      // final data = json.decode(response.body);
+      final List<Location> fetchedLocations = [];
+
+      for (var locationData in data) {
+        final location = Location(
+            name: locationData['assetName'],
+            id: locationData['id'],
+            category: locationData['assetCategory']['name']);
+
+        fetchedLocations.add(location);
+      }
+
+      setState(() {
+        locations = fetchedLocations;
+        filteredLocations =
+            fetchedLocations; // Initialize filteredLocations with all locations initially
+      });
+    } else {
+      // Handle API error
+      print('Error fetching locations: ${response.statusCode}');
+    }
+  }
+
+  void filterLocations(String query) {
+    setState(() {
+      filteredLocations = locations
+          .where((location) =>
+              location.name.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    filteredAssets.addAll(allAssets);
+    fetchLocations();
   }
 
-  void _filterAssets(String query) {
-    filteredAssets.clear();
-    filteredAssets.addAll(allAssets.where((asset) =>
-        asset.name.toLowerCase().contains(query.toLowerCase()) ||
-        asset.id.toLowerCase().contains(query.toLowerCase())));
-    setState(() {});
+  void _onIconTapped(Location asset) {
+    // Custom action when the icon is tapped
+    print('Icon tapped: ${asset.name}');
   }
 
   @override
@@ -183,7 +221,7 @@ class _YourModalWidgetState extends State<YourModalWidget> {
           TextFormField(
             controller: searchController,
             onChanged: (value) {
-              _filterAssets(value);
+              filterLocations(value);
             },
             decoration: InputDecoration(
               labelText: 'Search Assets',
@@ -192,29 +230,24 @@ class _YourModalWidgetState extends State<YourModalWidget> {
           ),
           SizedBox(height: 16.0),
           Expanded(
-            child: ListView.builder(
-              itemCount: filteredAssets.length,
-              itemBuilder: (context, index) {
-                AssetData asset = filteredAssets[index];
-                return ListTile(
-                  onTap: () {
-                    Navigator.pop(context, asset);
-                  },
-                  title: Text(asset.name),
-                  subtitle: Text('ID: ${asset.id}'),
-                );
-              },
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: ListView.builder(
+                  itemCount: filteredLocations.length,
+                  itemBuilder: (context, index) {
+                    Location asset = filteredLocations[index];
+                    return ListTile(
+                      onTap: () {
+                        Navigator.pop(context, asset);
+                      },
+                      title: Text(asset.name),
+                      subtitle: Text('ID: ${asset.id}'),
+                    );
+                  }),
             ),
           ),
         ],
       ),
     );
   }
-}
-
-class AssetData {
-  final String id;
-  final String name;
-
-  AssetData({required this.id, required this.name});
 }
