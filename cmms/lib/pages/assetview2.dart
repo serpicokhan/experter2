@@ -230,6 +230,7 @@
 // */
 import 'package:cmms/pages/assetcategory.dart';
 import 'package:cmms/pages/machinlist.dart';
+import 'package:cmms/pages/workorderform.dart';
 import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -517,6 +518,20 @@ class _AssetDetailViewState extends State<AssetDetailView2> {
               ),
             ],
           ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FormScreen(),
+              ),
+            );
+            // Add the action you want to perform when the button is pressed.
+            // For example, you can navigate to another screen.
+          },
+          child: Icon(
+              Icons.add), // You can change the icon to any IconData you like.
         ),
       );
     }
