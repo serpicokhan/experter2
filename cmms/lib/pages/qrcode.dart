@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
+import 'assetDetail.dart';
+
 class QRViewExample extends StatefulWidget {
   const QRViewExample({Key? key}) : super(key: key);
 
@@ -81,10 +83,51 @@ class _QRViewExampleState extends State<QRViewExample> {
       this.controller = controller;
     });
     controller.scannedDataStream.listen((scanData) {
-      setState(() {
+      setState(() async {
         result = scanData;
-        //should navigate from here
+        await controller.pauseCamera();
       });
+      if (result != null) {
+        // var results = result.toString().split("&");
+        String? inputString = result!.code;
+
+        // Split the input string by '&'
+        List<String> parts = inputString!.split('&');
+        if (parts.length == 2) {
+          // Assuming the first part is an integer and the second part is a string
+          int? assetId = int.tryParse(parts[0]);
+          String assetName = parts[1];
+
+          if (assetId != null && assetName != null) {
+            // Use the extracted values in the Navigator.push function
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AssetDetailsView(
+                  assetId: assetId,
+                  assetName: assetName,
+                ),
+              ),
+            );
+          } else {
+            // Handle the case where parsing or conversion failed
+            print("Invalid input format");
+          }
+        } else {
+          // Handle the case where the input format is not as expected
+          print("Invalid input format");
+        }
+
+        // should navigate from here
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //       builder: (context) => AssetDetailsView(
+        //             assetId: 6936,
+        //             assetName: "line1",
+        //           )),
+        // );
+      }
     });
   }
 
