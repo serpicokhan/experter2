@@ -297,7 +297,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
             children: [
               WorkOrderListScreen(),
               LocationList(),
-              LoginDemo(),
+              QRViewExample(),
               PlaceholderWidget(),
             ],
           ),
