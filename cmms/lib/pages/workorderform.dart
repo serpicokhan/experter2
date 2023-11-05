@@ -7,6 +7,8 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:persian_datetime_picker/persian_datetime_picker.dart';
+
 class FormScreen extends StatefulWidget {
   @override
   _FormScreenState createState() => _FormScreenState();
@@ -16,6 +18,12 @@ class _FormScreenState extends State<FormScreen> {
   String input1Value = '';
   String input2Value = '';
   String input2id = '';
+  Jalali selectedDate = Jalali.now();
+  String label = '';
+  void initState() {
+    super.initState();
+    label = 'انتخاب تاریخ زمان';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +36,36 @@ class _FormScreenState extends State<FormScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            TextButton(
+              child: Text('dsadsa'),
+              onPressed: () async {
+                Jalali? picked = await showPersianDatePicker(
+                    context: context,
+                    initialDate: Jalali.now(),
+                    firstDate: Jalali(1385, 8),
+                    lastDate: Jalali(1450, 9),
+                    initialEntryMode: PDatePickerEntryMode.calendarOnly,
+                    initialDatePickerMode: PDatePickerMode.year,
+                    builder: (context, child) {
+                      return Theme(
+                        data: ThemeData(
+                          dialogTheme: const DialogTheme(
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(0)),
+                            ),
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    });
+                if (picked != null && picked != selectedDate) {
+                  setState(() {
+                    label = picked.toJalaliDateTime();
+                  });
+                }
+              },
+            ),
             TextFormField(
               onChanged: (value) {
                 setState(() {

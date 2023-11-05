@@ -47,6 +47,7 @@ dependencies:
   firebase_messaging: ^11.2.7
   modal_bottom_sheet: ^2.0.1
   qr_code_scanner: ^0.7.0
+  jalali_calendar: ^1.0.4
   
   
   
