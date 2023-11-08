@@ -31,7 +31,7 @@ class _FormScreenState extends State<FormScreen> {
     int month = j1.month;
     int day = j1.day;
     setState(() {
-      input1Controller.text = "$year/$month/$day";
+      input1Controller.text = "$year-$month-$day";
     });
   }
 
@@ -91,7 +91,7 @@ class _FormScreenState extends State<FormScreen> {
             LinearDatePicker(
               dateChangeListener: (String selectedDate) {
                 setState(() {
-                  input1Controller.text = selectedDate;
+                  input1Controller.text = selectedDate.replaceAll('/', '-');
                 });
               },
               showMonthName: true,
@@ -163,6 +163,7 @@ class _FormScreenState extends State<FormScreen> {
       'summaryofIssue': input1Value,
       'woAsset': input2id,
       'maintenanceType': 18,
+      'datecraeted': input1Controller.text,
       'woStatus': 1,
       // 'timecreated':
       //     '${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}'
