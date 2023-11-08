@@ -163,6 +163,7 @@ class _FormScreenState extends State<FormScreen> {
       'summaryofIssue': input1Value,
       'woAsset': input2id,
       'maintenanceType': 18,
+      'assignedToUser': 58,
       'datecraeted': input1Controller.text,
       'woStatus': 1,
       // 'timecreated':
