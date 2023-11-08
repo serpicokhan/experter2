@@ -132,6 +132,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_linear_datepicker:
+    dependency: "direct main"
+    description:
+      name: flutter_linear_datepicker
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.5"
   flutter_lints:
     dependency: "direct overridden"
     description:
@@ -177,20 +184,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.17.0"
-  jalali_calendar:
-    dependency: "direct main"
-    description:
-      name: jalali_calendar
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.4"
-  jiffy:
-    dependency: transitive
-    description:
-      name: jiffy
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "4.1.0"
   js:
     dependency: transitive
     description:
@@ -275,13 +268,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.6"
-  persian_datetime_picker:
-    dependency: "direct main"
-    description:
-      name: persian_datetime_picker
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.6.0"
   petitparser:
     dependency: transitive
     description:
@@ -317,6 +303,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.7.0"
+  shamsi_date:
+    dependency: "direct main"
+    description:
+      name: shamsi_date
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   shared_preferences:
     dependency: "direct main"
     description:

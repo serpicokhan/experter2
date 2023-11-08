@@ -1,13 +1,13 @@
 import 'package:cmms/main.dart';
 import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_linear_datepicker/flutter_datepicker.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shamsi_date/shamsi_date.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 class FormScreen extends StatefulWidget {
   @override
@@ -18,11 +18,21 @@ class _FormScreenState extends State<FormScreen> {
   String input1Value = '';
   String input2Value = '';
   String input2id = '';
-  Jalali selectedDate = Jalali.now();
   String label = '';
+  String seletedDate = '';
+  TextEditingController input1Controller = TextEditingController();
   void initState() {
     super.initState();
     label = 'انتخاب تاریخ زمان';
+    var a = DateTime.now();
+    Gregorian g1 = Gregorian(a.year, a.month, a.day);
+    Jalali j1 = g1.toJalali();
+    int year = j1.year;
+    int month = j1.month;
+    int day = j1.day;
+    setState(() {
+      input1Controller.text = "$year/$month/$day";
+    });
   }
 
   @override
@@ -36,42 +46,11 @@ class _FormScreenState extends State<FormScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextButton(
-              child: Text('dsadsa'),
-              onPressed: () async {
-                Jalali? picked = await showPersianDatePicker(
-                    context: context,
-                    initialDate: Jalali.now(),
-                    firstDate: Jalali(1385, 8),
-                    lastDate: Jalali(1450, 9),
-                    initialEntryMode: PDatePickerEntryMode.calendarOnly,
-                    initialDatePickerMode: PDatePickerMode.year,
-                    builder: (context, child) {
-                      return Theme(
-                        data: ThemeData(
-                          dialogTheme: const DialogTheme(
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(0)),
-                            ),
-                          ),
-                        ),
-                        child: child!,
-                      );
-                    });
-                if (picked != null && picked != selectedDate) {
-                  setState(() {
-                    label = picked.toJalaliDateTime();
-                  });
-                }
-              },
-            ),
             TextFormField(
-              onChanged: (value) {
-                setState(() {
-                  input1Value = value;
-                });
+              onTap: () {
+                showDateDialog(context);
               },
+              controller: input1Controller,
               decoration: InputDecoration(labelText: 'Input 1'),
             ),
             SizedBox(height: 16),
@@ -94,6 +73,48 @@ class _FormScreenState extends State<FormScreen> {
                 _saveForm();
               },
               child: Text('Save Form'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void showDateDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Choose Date'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LinearDatePicker(
+              dateChangeListener: (String selectedDate) {
+                setState(() {
+                  input1Controller.text = selectedDate;
+                });
+              },
+              showMonthName: true,
+              isJalaali: true,
+              labelStyle: TextStyle(
+                fontFamily: 'Vazir',
+                color: Colors.black,
+              ),
+              selectedRowStyle: TextStyle(
+                fontFamily: 'Vazir',
+                color: Colors.deepOrange,
+              ),
+              unselectedRowStyle: TextStyle(
+                fontFamily: 'Vazir',
+                color: Colors.blueGrey,
+              ),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Close'),
             ),
           ],
         ),
