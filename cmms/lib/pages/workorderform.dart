@@ -17,19 +17,24 @@ class FormScreen extends StatefulWidget {
 class _FormScreenState extends State<FormScreen> {
   String input1Value = '';
   String input2Value = '';
+  String UserValue = '';
+  String UserId = '';
   String input2id = '';
   String label = '';
   String seletedDate = '';
+  late Gregorian g1;
+  late Jalali j1;
   TextEditingController input1Controller = TextEditingController();
   void initState() {
     super.initState();
     label = 'انتخاب تاریخ زمان';
     var a = DateTime.now();
-    Gregorian g1 = Gregorian(a.year, a.month, a.day);
-    Jalali j1 = g1.toJalali();
+    g1 = Gregorian(a.year, a.month, a.day);
+    j1 = g1.toJalali();
     int year = j1.year;
     int month = j1.month;
     int day = j1.day;
+
     setState(() {
       input1Controller.text = "$year-$month-$day";
     });
@@ -53,6 +58,14 @@ class _FormScreenState extends State<FormScreen> {
               controller: input1Controller,
               decoration: InputDecoration(labelText: 'Input 1'),
             ),
+            TextFormField(
+              onChanged: (value) {
+                setState(() {
+                  input1Value = value;
+                });
+              },
+              decoration: InputDecoration(labelText: 'مشکل'),
+            ),
             SizedBox(height: 16),
             GestureDetector(
               onTap: () {
@@ -63,6 +76,19 @@ class _FormScreenState extends State<FormScreen> {
                 controller: TextEditingController(text: input2Value),
                 decoration: InputDecoration(
                   labelText: 'Input 2',
+                  suffixIcon: Icon(Icons.edit),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                _openModal2(context);
+              },
+              child: TextFormField(
+                enabled: false,
+                controller: TextEditingController(text: UserValue),
+                decoration: InputDecoration(
+                  labelText: 'نام کاربر',
                   suffixIcon: Icon(Icons.edit),
                 ),
               ),
@@ -92,6 +118,9 @@ class _FormScreenState extends State<FormScreen> {
               dateChangeListener: (String selectedDate) {
                 setState(() {
                   input1Controller.text = selectedDate.replaceAll('/', '-');
+                  var dates = input1Controller.text.split('-');
+                  j1 = Jalali(int.parse(dates[0]), int.parse(dates[1]),
+                      int.parse(dates[2]));
                 });
               },
               showMonthName: true,
@@ -136,6 +165,20 @@ class _FormScreenState extends State<FormScreen> {
     }
   }
 
+  void _openModal2(BuildContext context) async {
+    final selectedAsset = await showModalBottomSheet<SysUser>(
+      context: context,
+      builder: (context) => UserModalWidget(),
+    );
+
+    if (selectedAsset != null) {
+      setState(() {
+        UserValue = '${selectedAsset.fullName} (ID: ${selectedAsset.id})';
+        UserId = selectedAsset.id.toString();
+      });
+    }
+  }
+
   void _showSnackBar(BuildContext context, String error) {
     final snackBar = SnackBar(
       content: Text(error),
@@ -156,15 +199,21 @@ class _FormScreenState extends State<FormScreen> {
 
   void _saveForm() async {
     // Replace 'your_url' with the actual URL to which you want to post the data.
-    // final url = Uri.parse(${MyGlobals.server}'/api/v1/RegMini/');
+    // final url = Uri.parse(${MyGlobals.server2}'/api/v1/RegMini/');
     DateTime currentDateTime = DateTime.now();
+
+    // j1 = Jalali(1402, 10, 21);
+    int year = j1.toGregorian().year;
+    int month = j1.toGregorian().month;
+
+    int day = j1.toGregorian().day;
 
     final Map<String, dynamic> data = {
       'summaryofIssue': input1Value,
       'woAsset': input2id,
       'maintenanceType': 18,
-      'assignedToUser': 58,
-      'datecraeted': input1Controller.text,
+      'assignedToUser': UserId,
+      'datecreated': "$year-$month-$day",
       'woStatus': 1,
       // 'timecreated':
       //     '${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}'
@@ -209,12 +258,33 @@ class YourModalWidget extends StatefulWidget {
   _YourModalWidgetState createState() => _YourModalWidgetState();
 }
 
+class UserModalWidget extends StatefulWidget {
+  @override
+  _UserModalWidgetState createState() => _UserModalWidgetState();
+}
+
 class Location {
   final String name;
   final String category;
   final int id;
 
   Location({required this.name, required this.id, required this.category});
+}
+
+// create dart class according to this fileds fields = ('id', 'fullName','title','email','userId')
+class SysUser {
+  final String fullName;
+  final String title;
+  final String email;
+  final int id;
+  final int userId;
+
+  SysUser(
+      {required this.fullName,
+      required this.id,
+      required this.title,
+      required this.email,
+      required this.userId});
 }
 
 class _YourModalWidgetState extends State<YourModalWidget> {
@@ -302,6 +372,105 @@ class _YourModalWidgetState extends State<YourModalWidget> {
                         Navigator.pop(context, asset);
                       },
                       title: Text(asset.name),
+                      subtitle: Text('ID: ${asset.id}'),
+                    );
+                  }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UserModalWidgetState extends State<UserModalWidget> {
+  TextEditingController searchController = TextEditingController();
+  List<SysUser> locations = [];
+  List<SysUser> filteredLocations = [];
+
+  Future<void> fetchLocations() async {
+    final url = '${MyGlobals.server}/api/v1/Users/';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      String source = const Utf8Decoder().convert(response.bodyBytes);
+      final data = jsonDecode(source);
+      // final data = json.decode(response.body);
+      final List<SysUser> fetchedLocations = [];
+
+      for (var locationData in data) {
+        final location = SysUser(
+          fullName: locationData['fullName'],
+          id: locationData['id'],
+          email: locationData['email'] ?? '',
+          title: locationData['title'],
+          userId: locationData['userId'],
+        );
+
+        fetchedLocations.add(location);
+      }
+
+      setState(() {
+        locations = fetchedLocations;
+        filteredLocations =
+            fetchedLocations; // Initialize filteredLocations with all locations initially
+      });
+    } else {
+      // Handle API error
+      print('Error fetching locations: ${response.statusCode}');
+    }
+  }
+
+  void filterLocations(String query) {
+    setState(() {
+      filteredLocations = locations
+          .where((location) =>
+              location.fullName.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchLocations();
+  }
+
+  void _onIconTapped(SysUser asset) {
+    // Custom action when the icon is tapped
+    print('Icon tapped: ${asset.fullName}');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextFormField(
+            controller: searchController,
+            onChanged: (value) {
+              filterLocations(value);
+            },
+            decoration: InputDecoration(
+              labelText: 'Search Assets',
+              suffixIcon: Icon(Icons.search),
+            ),
+          ),
+          SizedBox(height: 16.0),
+          Expanded(
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: ListView.builder(
+                  itemCount: filteredLocations.length,
+                  itemBuilder: (context, index) {
+                    SysUser asset = filteredLocations[index];
+                    return ListTile(
+                      onTap: () {
+                        Navigator.pop(context, asset);
+                      },
+                      title: Text(asset.fullName),
                       subtitle: Text('ID: ${asset.id}'),
                     );
                   }),
