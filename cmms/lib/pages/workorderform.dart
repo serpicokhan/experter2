@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cmms/main.dart';
+import 'package:cmms/pages/woformwidgets.dart';
 import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_linear_datepicker/flutter_datepicker.dart';
@@ -8,6 +11,8 @@ import 'dart:convert';
 import 'package:shamsi_date/shamsi_date.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:image_picker/image_picker.dart';
 
 class FormScreen extends StatefulWidget {
   @override
@@ -22,6 +27,8 @@ class _FormScreenState extends State<FormScreen> {
   String input2id = '';
   String label = '';
   String seletedDate = '';
+  List<File> _images = [];
+  List<File> _files = [];
   late Gregorian g1;
   late Jalali j1;
   TextEditingController input1Controller = TextEditingController();
@@ -44,7 +51,13 @@ class _FormScreenState extends State<FormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Form with Modal'),
+        title: const Text('فرم دستور کار جدید',
+            style: TextStyle(
+              fontFamily: 'Vazir',
+              overflow: TextOverflow.ellipsis,
+
+              // Add more text styles as needed
+            )),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -56,7 +69,7 @@ class _FormScreenState extends State<FormScreen> {
                 showDateDialog(context);
               },
               controller: input1Controller,
-              decoration: InputDecoration(labelText: 'Input 1'),
+              decoration: InputDecoration(labelText: 'تاریخ'),
             ),
             TextFormField(
               onChanged: (value) {
@@ -75,7 +88,7 @@ class _FormScreenState extends State<FormScreen> {
                 enabled: false,
                 controller: TextEditingController(text: input2Value),
                 decoration: InputDecoration(
-                  labelText: 'Input 2',
+                  labelText: 'مکان',
                   suffixIcon: Icon(Icons.edit),
                 ),
               ),
@@ -94,14 +107,110 @@ class _FormScreenState extends State<FormScreen> {
               ),
             ),
             SizedBox(height: 16),
+            // Display the taken pictures as thumbnails
+            Card(
+              elevation: 4, // Customize the card elevation as needed
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ListTile(
+                    title: Text(
+                      'عکسهای پیوست شده',
+                      style: TextStyle(fontFamily: 'Vazir'),
+                    ), // Add your legend title here
+                  ),
+                  // Display the taken pictures as thumbnails in a horizontal row
+                  if (_images.isNotEmpty)
+                    Row(
+                      children: _images.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final image = entry.value;
+                        return Dismissible(
+                          key: ValueKey<int>(index),
+                          onDismissed: (direction) {
+                            setState(() {
+                              _images.removeAt(
+                                  index); // Remove the image when dismissed
+                            });
+                          },
+                          background: Container(
+                            color: Colors.red,
+                            alignment: Alignment.centerRight,
+                            child: Icon(Icons.delete, color: Colors.white),
+                          ),
+                          child: Column(
+                            children: [
+                              Stack(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return LargeImageDialog(
+                                              image); // Pass the selected image to the dialog
+                                        },
+                                      );
+                                    },
+                                    child: Image.file(image,
+                                        height: 100, width: 100),
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _images.removeAt(
+                                              index); // Remove the image when tapped
+                                        });
+                                      },
+                                      child:
+                                          Icon(Icons.close, color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                ],
+              ),
+            ),
+
             ElevatedButton(
               onPressed: () {
                 _saveForm();
               },
-              child: Text('Save Form'),
+              child: Text('ذخیره',
+                  style: TextStyle(
+                    fontFamily: 'Vazir',
+                    fontSize: 12.0, overflow: TextOverflow.ellipsis,
+
+                    // Add more text styles as needed
+                  )),
             ),
           ],
         ),
+      ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: _takePicture,
+            tooltip: 'Take Picture',
+            child: Icon(Icons.camera),
+          ),
+          SizedBox(height: 16), // Add some spacing between the buttons
+          FloatingActionButton(
+            tooltip: 'Attach File',
+            onPressed: () {},
+            child: Icon(Icons.attach_file),
+          ),
+        ],
       ),
     );
   }
@@ -110,7 +219,13 @@ class _FormScreenState extends State<FormScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Choose Date'),
+        title: Text('انتخاب کنید',
+            style: TextStyle(
+              fontFamily: 'Vazir',
+              fontSize: 12.0, overflow: TextOverflow.ellipsis,
+
+              // Add more text styles as needed
+            )),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -143,7 +258,13 @@ class _FormScreenState extends State<FormScreen> {
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Close'),
+              child: Text('بستن',
+                  style: TextStyle(
+                    fontFamily: 'Vazir',
+                    fontSize: 12.0, overflow: TextOverflow.ellipsis,
+
+                    // Add more text styles as needed
+                  )),
             ),
           ],
         ),
@@ -251,233 +372,25 @@ class _FormScreenState extends State<FormScreen> {
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => BottomNavigation()));
   }
-}
 
-class YourModalWidget extends StatefulWidget {
-  @override
-  _YourModalWidgetState createState() => _YourModalWidgetState();
-}
+  Future<void> _takePicture() async {
+    final image = await ImagePicker().pickImage(source: ImageSource.camera);
 
-class UserModalWidget extends StatefulWidget {
-  @override
-  _UserModalWidgetState createState() => _UserModalWidgetState();
-}
-
-class Location {
-  final String name;
-  final String category;
-  final int id;
-
-  Location({required this.name, required this.id, required this.category});
-}
-
-// create dart class according to this fileds fields = ('id', 'fullName','title','email','userId')
-class SysUser {
-  final String fullName;
-  final String title;
-  final String email;
-  final int id;
-  final int userId;
-
-  SysUser(
-      {required this.fullName,
-      required this.id,
-      required this.title,
-      required this.email,
-      required this.userId});
-}
-
-class _YourModalWidgetState extends State<YourModalWidget> {
-  TextEditingController searchController = TextEditingController();
-  List<Location> locations = [];
-  List<Location> filteredLocations = [];
-
-  Future<void> fetchLocations() async {
-    final url = '${MyGlobals.server}/api/v1/locations/';
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      String source = const Utf8Decoder().convert(response.bodyBytes);
-      final data = jsonDecode(source);
-      // final data = json.decode(response.body);
-      final List<Location> fetchedLocations = [];
-
-      for (var locationData in data) {
-        final location = Location(
-            name: locationData['assetName'],
-            id: locationData['id'],
-            category: locationData['assetCategory']['name']);
-
-        fetchedLocations.add(location);
-      }
-
+    if (image != null) {
       setState(() {
-        locations = fetchedLocations;
-        filteredLocations =
-            fetchedLocations; // Initialize filteredLocations with all locations initially
+        _images.add(File(image.path)); // Add the image to the list
       });
-    } else {
-      // Handle API error
-      print('Error fetching locations: ${response.statusCode}');
     }
   }
 
-  void filterLocations(String query) {
-    setState(() {
-      filteredLocations = locations
-          .where((location) =>
-              location.name.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-    });
-  }
+  Future<void> _pickFiles() async {
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(allowMultiple: true);
 
-  @override
-  void initState() {
-    super.initState();
-    fetchLocations();
-  }
-
-  void _onIconTapped(Location asset) {
-    // Custom action when the icon is tapped
-    print('Icon tapped: ${asset.name}');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextFormField(
-            controller: searchController,
-            onChanged: (value) {
-              filterLocations(value);
-            },
-            decoration: InputDecoration(
-              labelText: 'Search Assets',
-              suffixIcon: Icon(Icons.search),
-            ),
-          ),
-          SizedBox(height: 16.0),
-          Expanded(
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: ListView.builder(
-                  itemCount: filteredLocations.length,
-                  itemBuilder: (context, index) {
-                    Location asset = filteredLocations[index];
-                    return ListTile(
-                      onTap: () {
-                        Navigator.pop(context, asset);
-                      },
-                      title: Text(asset.name),
-                      subtitle: Text('ID: ${asset.id}'),
-                    );
-                  }),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _UserModalWidgetState extends State<UserModalWidget> {
-  TextEditingController searchController = TextEditingController();
-  List<SysUser> locations = [];
-  List<SysUser> filteredLocations = [];
-
-  Future<void> fetchLocations() async {
-    final url = '${MyGlobals.server}/api/v1/Users/';
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      String source = const Utf8Decoder().convert(response.bodyBytes);
-      final data = jsonDecode(source);
-      // final data = json.decode(response.body);
-      final List<SysUser> fetchedLocations = [];
-
-      for (var locationData in data) {
-        final location = SysUser(
-          fullName: locationData['fullName'],
-          id: locationData['id'],
-          email: locationData['email'] ?? '',
-          title: locationData['title'],
-          userId: locationData['userId'],
-        );
-
-        fetchedLocations.add(location);
-      }
-
-      setState(() {
-        locations = fetchedLocations;
-        filteredLocations =
-            fetchedLocations; // Initialize filteredLocations with all locations initially
-      });
-    } else {
-      // Handle API error
-      print('Error fetching locations: ${response.statusCode}');
+    if (result != null) {
+      List<File> files = result.paths.map((path) => File(path!)).toList();
+      // You now have a list of selected files in the 'files' variable.
+      // You can store the file paths or perform any other action.
     }
-  }
-
-  void filterLocations(String query) {
-    setState(() {
-      filteredLocations = locations
-          .where((location) =>
-              location.fullName.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchLocations();
-  }
-
-  void _onIconTapped(SysUser asset) {
-    // Custom action when the icon is tapped
-    print('Icon tapped: ${asset.fullName}');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextFormField(
-            controller: searchController,
-            onChanged: (value) {
-              filterLocations(value);
-            },
-            decoration: InputDecoration(
-              labelText: 'Search Assets',
-              suffixIcon: Icon(Icons.search),
-            ),
-          ),
-          SizedBox(height: 16.0),
-          Expanded(
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: ListView.builder(
-                  itemCount: filteredLocations.length,
-                  itemBuilder: (context, index) {
-                    SysUser asset = filteredLocations[index];
-                    return ListTile(
-                      onTap: () {
-                        Navigator.pop(context, asset);
-                      },
-                      title: Text(asset.fullName),
-                      subtitle: Text('ID: ${asset.id}'),
-                    );
-                  }),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
