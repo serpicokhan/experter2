@@ -1,3 +1,4 @@
+import 'package:cmms/pages/wogeneralview.dart';
 import 'package:flutter/material.dart';
 
 class WorkOrderTabView extends StatefulWidget {
@@ -25,9 +26,7 @@ class _WorkOrderTabViewState extends State<WorkOrderTabView> {
         body: TabBarView(
           children: [
             // General Tab
-            Center(
-              child: Text('General Content'),
-            ),
+            GeneralView(),
             // Tasks Tab
             Center(
               child: Text('Tasks Content'),
