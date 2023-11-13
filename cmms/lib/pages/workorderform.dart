@@ -3,9 +3,10 @@ import 'dart:io';
 import 'package:cmms/main.dart';
 import 'package:cmms/pages/woformwidgets.dart';
 import 'package:cmms/util/util.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_linear_datepicker/flutter_datepicker.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shamsi_date/shamsi_date.dart';
@@ -20,6 +21,7 @@ class FormScreen extends StatefulWidget {
 }
 
 class _FormScreenState extends State<FormScreen> {
+  bool isRecording = false;
   String input1Value = '';
   String input2Value = '';
   String UserValue = '';
@@ -29,6 +31,8 @@ class _FormScreenState extends State<FormScreen> {
   String seletedDate = '';
   List<File> _images = [];
   List<File> _files = [];
+  int returnId = 0;
+
   late Gregorian g1;
   late Jalali j1;
   TextEditingController input1Controller = TextEditingController();
@@ -59,158 +63,200 @@ class _FormScreenState extends State<FormScreen> {
               // Add more text styles as needed
             )),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextFormField(
-              onTap: () {
-                showDateDialog(context);
-              },
-              controller: input1Controller,
-              decoration: InputDecoration(labelText: 'تاریخ'),
-            ),
-            TextFormField(
-              onChanged: (value) {
-                setState(() {
-                  input1Value = value;
-                });
-              },
-              decoration: InputDecoration(labelText: 'مشکل'),
-            ),
-            SizedBox(height: 16),
-            GestureDetector(
-              onTap: () {
-                _openModal(context);
-              },
-              child: TextFormField(
-                enabled: false,
-                controller: TextEditingController(text: input2Value),
-                decoration: InputDecoration(
-                  labelText: 'مکان',
-                  suffixIcon: Icon(Icons.edit),
-                ),
+      body: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                onTap: () {
+                  showDateDialog(context);
+                },
+                controller: input1Controller,
+                decoration: InputDecoration(labelText: 'تاریخ'),
               ),
-            ),
-            GestureDetector(
-              onTap: () {
-                _openModal2(context);
-              },
-              child: TextFormField(
-                enabled: false,
-                controller: TextEditingController(text: UserValue),
-                decoration: InputDecoration(
-                  labelText: 'نام کاربر',
-                  suffixIcon: Icon(Icons.edit),
-                ),
+              TextFormField(
+                onChanged: (value) {
+                  setState(() {
+                    input1Value = value;
+                  });
+                },
+                decoration: InputDecoration(labelText: 'مشکل'),
               ),
-            ),
-            SizedBox(height: 16),
-            // Display the taken pictures as thumbnails
-            Card(
-              elevation: 4, // Customize the card elevation as needed
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ListTile(
-                    title: Text(
-                      'عکسهای پیوست شده',
-                      style: TextStyle(fontFamily: 'Vazir'),
-                    ), // Add your legend title here
+              SizedBox(height: 16),
+              GestureDetector(
+                onTap: () {
+                  _openModal(context);
+                },
+                child: TextFormField(
+                  enabled: false,
+                  controller: TextEditingController(text: input2Value),
+                  decoration: InputDecoration(
+                    labelText: 'مکان',
+                    suffixIcon: Icon(Icons.edit),
                   ),
-                  // Display the taken pictures as thumbnails in a horizontal row
-                  if (_images.isNotEmpty)
-                    Row(
-                      children: _images.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final image = entry.value;
-                        return Dismissible(
-                          key: ValueKey<int>(index),
-                          onDismissed: (direction) {
-                            setState(() {
-                              _images.removeAt(
-                                  index); // Remove the image when dismissed
-                            });
-                          },
-                          background: Container(
-                            color: Colors.red,
-                            alignment: Alignment.centerRight,
-                            child: Icon(Icons.delete, color: Colors.white),
-                          ),
-                          child: Column(
-                            children: [
-                              Stack(
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  _openModal2(context);
+                },
+                child: TextFormField(
+                  enabled: false,
+                  controller: TextEditingController(text: UserValue),
+                  decoration: InputDecoration(
+                    labelText: 'نام کاربر',
+                    suffixIcon: Icon(Icons.edit),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              // Display the taken pictures as thumbnails
+              GestureDetector(
+                onTap: _takePicture,
+                child: Card(
+                  elevation: 4, // Customize the card elevation as needed
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ListTile(
+                        title: Text(
+                          'عکسهای پیوست شده',
+                          style: TextStyle(fontFamily: 'Vazir'),
+                        ), // Add your legend title here
+                      ),
+                      // Display the taken pictures as thumbnails in a horizontal row
+                      if (_images.isNotEmpty)
+                        Row(
+                          children: _images.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final image = entry.value;
+                            return Dismissible(
+                              key: ValueKey<int>(index),
+                              onDismissed: (direction) {
+                                setState(() {
+                                  _images.removeAt(
+                                      index); // Remove the image when dismissed
+                                });
+                              },
+                              background: Container(
+                                color: Colors.red,
+                                alignment: Alignment.centerRight,
+                                child: Icon(Icons.delete, color: Colors.white),
+                              ),
+                              child: Column(
                                 children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return LargeImageDialog(
-                                              image); // Pass the selected image to the dialog
+                                  Stack(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return LargeImageDialog(
+                                                  image); // Pass the selected image to the dialog
+                                            },
+                                          );
                                         },
-                                      );
-                                    },
-                                    child: Image.file(image,
-                                        height: 100, width: 100),
-                                  ),
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _images.removeAt(
-                                              index); // Remove the image when tapped
-                                        });
-                                      },
-                                      child:
-                                          Icon(Icons.close, color: Colors.red),
-                                    ),
+                                        child: Image.file(image,
+                                            height: 100, width: 100),
+                                      ),
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _images.removeAt(
+                                                  index); // Remove the image when tapped
+                                            });
+                                          },
+                                          child: Icon(Icons.close,
+                                              color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                ],
+                            );
+                          }).toList(),
+                        ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+              GestureDetector(
+                onTap: _pickFiles,
+                child: Card(
+                  elevation: 4,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ListTile(
+                        title: Text(
+                          'فایل‌های پیوست شده',
+                          style: TextStyle(fontFamily: 'Vazir'),
+                        ),
+                      ),
+                      // Display the attached files as icons
+                      if (_files.isNotEmpty)
+                        Wrap(
+                          spacing: 8.0,
+                          children: _files.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final file = entry.value;
+                            return Dismissible(
+                              key: ValueKey<int>(index),
+                              onDismissed: (direction) {
+                                setState(() {
+                                  _files.removeAt(index);
+                                });
+                              },
+                              background: Container(
+                                color: Colors.red,
+                                alignment: Alignment.centerRight,
+                                child: Icon(Icons.delete, color: Colors.white),
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  // You can add custom action when the file icon is tapped
+                                },
+                                child: Column(
+                                  children: [
+                                    Icon(Icons.insert_drive_file),
+                                    Text(
+                                      file.path.split('/').last,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _saveForm();
+                },
+                child: Text('ذخیره',
+                    style: TextStyle(
+                      fontFamily: 'Vazir',
+                      fontSize: 12.0, overflow: TextOverflow.ellipsis,
 
-            ElevatedButton(
-              onPressed: () {
-                _saveForm();
-              },
-              child: Text('ذخیره',
-                  style: TextStyle(
-                    fontFamily: 'Vazir',
-                    fontSize: 12.0, overflow: TextOverflow.ellipsis,
-
-                    // Add more text styles as needed
-                  )),
-            ),
-          ],
+                      // Add more text styles as needed
+                    )),
+              ),
+            ],
+          ),
         ),
-      ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: _takePicture,
-            tooltip: 'Take Picture',
-            child: Icon(Icons.camera),
-          ),
-          SizedBox(height: 16), // Add some spacing between the buttons
-          FloatingActionButton(
-            tooltip: 'Attach File',
-            onPressed: () {},
-            child: Icon(Icons.attach_file),
-          ),
-        ],
       ),
     );
   }
@@ -345,7 +391,7 @@ class _FormScreenState extends State<FormScreen> {
       // Read a string value
       final token = prefs.getString('token');
       final response = await http.post(
-        Uri.parse('${MyGlobals.server}/api/v1/RegMini/'),
+        Uri.parse('${MyGlobals.server}/api/v1/RegSingle/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Token $token',
@@ -355,6 +401,43 @@ class _FormScreenState extends State<FormScreen> {
       // final response = await http.post(url, body: json.encode(data));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        var data2 = json.decode(response.body);
+
+        // Iterate through each item in the array and extract the "id" values
+        // print(data["id"].toString());
+        returnId = data2["id"];
+
+        ///
+        if (_files.length > 0) {
+          print("here!!!!!!!!!!!!!!!!!!");
+          var request = http.MultipartRequest(
+            'POST',
+            Uri.parse('${MyGlobals.server}/api/v1/UploadWoFile/'),
+          );
+
+          List<File> files = _files /* your list of files */;
+          for (var file in files) {
+            var filePart =
+                await http.MultipartFile.fromPath('files', file.path);
+            request.files.add(filePart);
+          }
+          request.fields['woid'] = returnId.toString();
+          request.headers['Authorization'] = 'Token $token';
+          request.headers['Content-Type'] = 'application/json';
+
+// Add other parameters if needed
+// request.fields['param1'] = 'value1';
+
+          var response = await request.send();
+          if (response.statusCode == 200) {
+            print('Files uploaded successfully');
+          } else {
+            print('File upload failed with status ${response.statusCode}');
+          }
+        }
+
+        ///
+
         // Handle successful response here, if needed.
         // For example, show a success message or navigate to another page.
 
@@ -384,11 +467,14 @@ class _FormScreenState extends State<FormScreen> {
   }
 
   Future<void> _pickFiles() async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(allowMultiple: true);
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
 
     if (result != null) {
-      List<File> files = result.paths.map((path) => File(path!)).toList();
+      File file = File(result.files.single.path.toString());
+      setState(() {
+        _files.add(file); // Add the image to the list
+      });
+      // List<File> files = result.paths.map((path) => File(path!)).toList();
       // You now have a list of selected files in the 'files' variable.
       // You can store the file paths or perform any other action.
     }

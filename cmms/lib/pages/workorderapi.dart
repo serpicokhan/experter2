@@ -1,4 +1,5 @@
 import 'package:cmms/model/workorder.dart';
+import 'package:cmms/pages/WorkorderTab.dart';
 import 'package:cmms/pages/workorderform.dart';
 import 'package:cmms/util/util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -156,7 +157,7 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
       for (var item in data) {
         WorkOrder workOrder = WorkOrder(
           id: item['id'],
-          problem: item['summaryofIssue'],
+          problem: item['summaryofIssue'] ?? '',
           asset: item['woAsset']["assetName"] ?? '',
           dueDate: DateTime.parse(item['datecreated']),
           maintenanceType: item['maintenanceType']["name"],
@@ -482,47 +483,57 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
                         ),
                       ),
                       onDismissed: (direction) => _handleDismiss(workOrder),
-                      child: Card(
-                        margin: EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8.0),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            child: Icon(Icons.build),
-                          ),
-                          title: Text(
-                            '${workOrder.problem}',
-                            style: TextStyle(
-                              fontFamily: 'Vazir',
-                              fontSize: 12.0, overflow: TextOverflow.ellipsis,
-                              fontWeight: FontWeight.bold,
-
-                              // Add more text styles as needed
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => WorkOrderTabView(),
                             ),
-                          ),
-                          subtitle: Text(
-                            '${workOrder.id}: ${workOrder.asset}',
-                            style: TextStyle(
-                              fontFamily: 'Vazir',
-
-                              // Add more text styles as needed
+                          );
+                        },
+                        child: Card(
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              child: Icon(Icons.build),
                             ),
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                DateFormat('yyyy-MM-dd')
-                                    .format(workOrder.dueDate),
+                            title: Text(
+                              '${workOrder.problem}',
+                              style: TextStyle(
+                                fontFamily: 'Vazir',
+                                fontSize: 12.0, overflow: TextOverflow.ellipsis,
+                                fontWeight: FontWeight.bold,
+
+                                // Add more text styles as needed
                               ),
-                              SizedBox(width: 8.0),
-                              Icon(
-                                statusIcon,
-                                color: Colors.deepOrange[
-                                    100], // Set the desired icon color
+                            ),
+                            subtitle: Text(
+                              '${workOrder.id}: ${workOrder.asset}',
+                              style: TextStyle(
+                                fontFamily: 'Vazir',
+
+                                // Add more text styles as needed
                               ),
-                            ],
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  DateFormat('yyyy-MM-dd')
+                                      .format(workOrder.dueDate),
+                                ),
+                                SizedBox(width: 8.0),
+                                Icon(
+                                  statusIcon,
+                                  color: Colors.deepOrange[
+                                      100], // Set the desired icon color
+                                ),
+                              ],
+                            ),
+                            // Add more fields as needed
                           ),
-                          // Add more fields as needed
                         ),
                       )),
                 );
