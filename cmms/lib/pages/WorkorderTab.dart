@@ -13,13 +13,13 @@ class _WorkOrderTabViewState extends State<WorkOrderTabView> {
       length: 4,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Work Order Tab View'),
+          title: Text('جزییات دستور کار'),
           bottom: TabBar(
             tabs: [
-              Tab(text: 'General'),
-              Tab(text: 'Tasks'),
-              Tab(text: 'Parts'),
-              Tab(text: 'Files'),
+              Tab(text: 'عمومی'),
+              Tab(text: 'کارها'),
+              Tab(text: 'قطعات'),
+              Tab(text: 'فایلها'),
             ],
           ),
         ),
@@ -29,15 +29,15 @@ class _WorkOrderTabViewState extends State<WorkOrderTabView> {
             GeneralView(),
             // Tasks Tab
             Center(
-              child: Text('Tasks Content'),
+              child: Text('کارها'),
             ),
             // Parts Tab
             Center(
-              child: Text('Parts Content'),
+              child: Text('قطعات'),
             ),
             // Files Tab
             Center(
-              child: Text('Files Content'),
+              child: Text('پیوست ها'),
             ),
           ],
         ),
