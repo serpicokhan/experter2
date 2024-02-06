@@ -1,5 +1,3 @@
-import 'package:cmms/pages/part.dart';
-import 'package:cmms/pages/task.dart';
 import 'package:cmms/pages/wogeneralview.dart';
 import 'package:flutter/material.dart';
 
@@ -15,13 +13,13 @@ class _WorkOrderTabViewState extends State<WorkOrderTabView> {
       length: 4,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Work Order Tab View'),
+          title: Text('جزییات دستور کار'),
           bottom: TabBar(
             tabs: [
-              Tab(text: 'General'),
-              Tab(text: 'Tasks'),
-              Tab(text: 'Parts'),
-              Tab(text: 'Files'),
+              Tab(text: 'عمومی'),
+              Tab(text: 'کارها'),
+              Tab(text: 'قطعات'),
+              Tab(text: 'فایلها'),
             ],
           ),
         ),
@@ -30,12 +28,16 @@ class _WorkOrderTabViewState extends State<WorkOrderTabView> {
             // General Tab
             GeneralView(),
             // Tasks Tab
-            TaskListScreen(),
+            Center(
+              child: Text('کارها'),
+            ),
             // Parts Tab
-            PartsListScreen(),
+            Center(
+              child: Text('قطعات'),
+            ),
             // Files Tab
             Center(
-              child: Text('Files Content'),
+              child: Text('پیوست ها'),
             ),
           ],
         ),
