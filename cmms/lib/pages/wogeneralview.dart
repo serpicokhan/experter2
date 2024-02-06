@@ -52,137 +52,140 @@ class _GeneralViewState extends State<GeneralView> {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Existing fields
-            TextFormField(
-              controller: summaryController,
-              style: TextStyle(fontFamily: 'Vazir'),
-              decoration: InputDecoration(labelText: 'خلاصه مشکل'),
-            ),
-            DropdownButtonFormField(
-              value: selectedRequestStatus,
-              items: [
-                'Completed',
-                'Requested', /* Add other status options */
-              ].map((status) {
-                return DropdownMenuItem(
-                  value: status,
-                  child: Text(
-                    status,
-                    style: TextStyle(fontFamily: 'Vazir'),
+        child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Existing fields
+              TextFormField(
+                controller: summaryController,
+                style: TextStyle(fontFamily: 'Vazir'),
+                decoration: InputDecoration(labelText: 'خلاصه مشکل'),
+              ),
+              DropdownButtonFormField(
+                value: selectedRequestStatus,
+                items: [
+                  'Completed',
+                  'Requested', /* Add other status options */
+                ].map((status) {
+                  return DropdownMenuItem(
+                    value: status,
+                    child: Text(
+                      status,
+                      style: TextStyle(fontFamily: 'Vazir'),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedRequestStatus = value.toString();
+                  });
+                },
+                decoration: InputDecoration(labelText: 'Request Status'),
+              ),
+              DropdownButtonFormField(
+                value: selectedMaintenanceType,
+                items: [
+                  'Preventive',
+                  'Corrective', /* Add other maintenance types */
+                ].map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(type),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedMaintenanceType = value.toString();
+                  });
+                },
+                decoration: InputDecoration(labelText: 'Maintenance Type'),
+              ),
+              DropdownButtonFormField(
+                value: selectedPriority,
+                items: [
+                  'High',
+                  'Medium',
+                  'Low', /* Add other priority levels */
+                ].map((priority) {
+                  return DropdownMenuItem(
+                    value: priority,
+                    child: Text(priority),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedPriority = value.toString();
+                  });
+                },
+                decoration: InputDecoration(labelText: 'Priority'),
+              ),
+              TextFormField(
+                controller: assetController,
+                decoration: InputDecoration(labelText: 'Asset'),
+              ),
+              TextFormField(
+                controller: projectController,
+                decoration: InputDecoration(labelText: 'Project'),
+              ),
+              TextFormField(
+                controller: dateCreatedController,
+                decoration: InputDecoration(labelText: 'Date Created'),
+              ),
+              TextFormField(
+                controller: timeCreatedController,
+                decoration: InputDecoration(labelText: 'Time Created'),
+              ),
+              // Editable Date and Time Pickers
+              GestureDetector(
+                onTap: () => _selectDate(context),
+                child: AbsorbPointer(
+                  child: TextFormField(
+                    controller: TextEditingController(
+                      text:
+                          selectedRequiredDate.toLocal().toString().split(" ")[0],
+                    ),
+                    decoration: InputDecoration(labelText: 'Required Date'),
                   ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedRequestStatus = value.toString();
-                });
-              },
-              decoration: InputDecoration(labelText: 'Request Status'),
-            ),
-            DropdownButtonFormField(
-              value: selectedMaintenanceType,
-              items: [
-                'Preventive',
-                'Corrective', /* Add other maintenance types */
-              ].map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(type),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedMaintenanceType = value.toString();
-                });
-              },
-              decoration: InputDecoration(labelText: 'Maintenance Type'),
-            ),
-            DropdownButtonFormField(
-              value: selectedPriority,
-              items: [
-                'High',
-                'Medium',
-                'Low', /* Add other priority levels */
-              ].map((priority) {
-                return DropdownMenuItem(
-                  value: priority,
-                  child: Text(priority),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedPriority = value.toString();
-                });
-              },
-              decoration: InputDecoration(labelText: 'Priority'),
-            ),
-            TextFormField(
-              controller: assetController,
-              decoration: InputDecoration(labelText: 'Asset'),
-            ),
-            TextFormField(
-              controller: projectController,
-              decoration: InputDecoration(labelText: 'Project'),
-            ),
-            TextFormField(
-              controller: dateCreatedController,
-              decoration: InputDecoration(labelText: 'Date Created'),
-            ),
-            TextFormField(
-              controller: timeCreatedController,
-              decoration: InputDecoration(labelText: 'Time Created'),
-            ),
-            // Editable Date and Time Pickers
-            GestureDetector(
-              onTap: () => _selectDate(context),
-              child: AbsorbPointer(
-                child: TextFormField(
-                  controller: TextEditingController(
-                    text:
-                        selectedRequiredDate.toLocal().toString().split(" ")[0],
-                  ),
-                  decoration: InputDecoration(labelText: 'Required Date'),
                 ),
               ),
-            ),
-            GestureDetector(
-              onTap: () => _selectTime(context),
-              child: AbsorbPointer(
-                child: TextFormField(
-                  controller: TextEditingController(
-                    text: selectedRequiredTime.format(context),
+              GestureDetector(
+                onTap: () => _selectTime(context),
+                child: AbsorbPointer(
+                  child: TextFormField(
+                    controller: TextEditingController(
+                      text: selectedRequiredTime.format(context),
+                    ),
+                    decoration: InputDecoration(labelText: 'Required Time'),
                   ),
-                  decoration: InputDecoration(labelText: 'Required Time'),
                 ),
               ),
-            ),
-            // New fields
-            TextFormField(
-              controller: assignUserController,
-              decoration: InputDecoration(labelText: 'Assign User'),
-            ),
-            DropdownButtonFormField(
-              value: selectedProblemCode,
-              items: [
-                'Code1',
-                'Code2', /* Add other problem codes */
-              ].map((code) {
-                return DropdownMenuItem(
-                  value: code,
-                  child: Text(code),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedProblemCode = value.toString();
-                });
-              },
-              decoration: InputDecoration(labelText: 'Problem Code'),
-            ),
-          ],
+              // New fields
+              TextFormField(
+                controller: assignUserController,
+                decoration: InputDecoration(labelText: 'Assign User'),
+              ),
+              DropdownButtonFormField(
+                value: selectedProblemCode,
+                items: [
+                  'Code1',
+                  'Code2', /* Add other problem codes */
+                ].map((code) {
+                  return DropdownMenuItem(
+                    value: code,
+                    child: Text(code),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedProblemCode = value.toString();
+                  });
+                },
+                decoration: InputDecoration(labelText: 'Problem Code'),
+              ),
+            ],
+          ),
         ),
       ),
     );
