@@ -1,3 +1,5 @@
+import 'package:cmms/pages/part.dart';
+import 'package:cmms/pages/task.dart';
 import 'package:cmms/pages/wogeneralview.dart';
 import 'package:flutter/material.dart';
 
@@ -28,13 +30,9 @@ class _WorkOrderTabViewState extends State<WorkOrderTabView> {
             // General Tab
             GeneralView(),
             // Tasks Tab
-            Center(
-              child: Text('Tasks Content'),
-            ),
+            TaskListScreen(),
             // Parts Tab
-            Center(
-              child: Text('Parts Content'),
-            ),
+            PartsListScreen(),
             // Files Tab
             Center(
               child: Text('Files Content'),
