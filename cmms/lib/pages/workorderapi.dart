@@ -488,7 +488,9 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => WorkOrderTabView(),
+                              builder: (context) => WorkOrderTabView(
+                                woId: workOrder.id,
+                              ),
                             ),
                           );
                         },
