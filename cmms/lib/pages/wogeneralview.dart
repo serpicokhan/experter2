@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cmms/util/util.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class _GeneralViewState extends State<GeneralView> {
   DateTime selectedRequiredDate = DateTime.now();
   TimeOfDay selectedRequiredTime = TimeOfDay.now();
   String? dropdownValue = 'تکمیل شده';
-  int? selectedMaintenanceTypeKey = 10;
+  int? selectedMaintenanceTypeKey;
   int? selectedPriorityKey = 1;
   Map<String, dynamic>? workOrderData;
 
@@ -41,7 +42,7 @@ class _GeneralViewState extends State<GeneralView> {
   final Map<int, String> maintenanceTypes = {
     10: 'سرویس',
     11: 'پروژه',
-    12: 'تعمیر',
+    18: 'تعمیر',
   };
 
   // List of items in our dropdown menu
@@ -67,7 +68,17 @@ class _GeneralViewState extends State<GeneralView> {
       setState(() {
         workOrderData = json.decode(response.body);
         summaryController.text = workOrderData!['summaryofIssue'] ?? '';
-        // assetController.text = workOrderData!['woAsset']['assetName'] ?? '';
+        dateCreatedController.text = workOrderData!['datecreated'] ?? '';
+        dateCompletedController.text = workOrderData!['dateCompleted'] ?? '';
+        timeCreatedController.text = workOrderData!['timecreated'] ?? '';
+        timeCompletedController.text = workOrderData!['timeCompleted'] ?? '';
+        assetController.text =
+            workOrderData!['woAsset']['assetName'].toString();
+        assignUserController.text =
+            workOrderData!['assignedToUser']['fullName'];
+
+        selectedMaintenanceTypeKey = workOrderData!['maintenanceType']['id'];
+        log("!!!!!!!!");
       });
     } else {
       // Handle the error

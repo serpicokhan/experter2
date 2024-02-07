@@ -1,3 +1,6 @@
+import 'package:cmms/pages/bomlistview.dart';
+import 'package:cmms/pages/partlist.dart';
+import 'package:cmms/pages/tasklist.dart';
 import 'package:cmms/pages/wogeneralview.dart';
 import 'package:flutter/material.dart';
 
@@ -36,20 +39,10 @@ class _WorkOrderTabViewState extends State<WorkOrderTabView> {
               woId: widget.woId,
             ),
             // Tasks Tab
-            Center(
-              child: Text('کارها',
-                  style: TextStyle(fontFamily: 'Vazir', fontSize: 12.0
-
-                      // Add more text styles as needed
-                      )),
-            ),
+            TaskView(workOrderId: widget.woId),
             // Parts Tab
-            Center(
-              child: Text('قطعات',
-                  style: TextStyle(fontFamily: 'Vazir', fontSize: 12.0
-
-                      // Add more text styles as needed
-                      )),
+            PartView(
+              workOrderId: widget.woId,
             ),
             // Files Tab
             Center(
